@@ -28,7 +28,7 @@ psheet = df['Parent']
 arsheet = df['AR']
 prow_count = psheet.max_row
 arrow_count = arsheet.max_row
-last_acct_no = psheet.cell(row=2, column=11).value
+last_acct_no = psheet.cell(row=2, column=10).value
 
 ###################create GUI##################
 
@@ -59,7 +59,7 @@ with st.form("new_acc"):
         arsheet.cell(column=6, row=arrow_count + 1, value='0')
         arsheet.cell(column=7, row=arrow_count + 1, value='0')
 
-        psheet.cell(row=2, column=11, value=last_acct_no + 1)
+        psheet.cell(row=2, column=10, value=last_acct_no + 1)
         df.save(filepath)
         df.close()
         st.write("New account " + str(last_acct_no) + "successfully created!")
