@@ -1,6 +1,4 @@
-os
 crewai
 crewai-tools
 streamlit
-PIL
 openAI
