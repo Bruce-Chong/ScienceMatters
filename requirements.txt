@@ -1,5 +1,6 @@
+streamlit
+pysqlite3-binary
 crewai
 crewai-tools
-streamlit
-openAI
+
 
