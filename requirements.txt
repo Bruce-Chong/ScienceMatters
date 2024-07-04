@@ -2,6 +2,3 @@ crewai
 crewai-tools
 streamlit
 openAI
-pysqlite3-binary
-pysqlite3
-chromadb==0.4.17
