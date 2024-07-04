@@ -2,3 +2,4 @@ crewai
 crewai-tools
 streamlit
 openAI
+pysqlite3==3.35.0
