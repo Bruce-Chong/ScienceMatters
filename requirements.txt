@@ -2,5 +2,4 @@ crewai
 crewai-tools
 streamlit
 openAI
-pysqlite3
-pysqlite3-wheels
+pysqlite-binary
