@@ -1,5 +1,5 @@
 crewai
 crewai-tools
-streamlit==1.36.0
+streamlit
 openAI
-pysqlite-binary
+
