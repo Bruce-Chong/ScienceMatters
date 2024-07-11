@@ -7,7 +7,6 @@ langchain-text-splitters
 langgraph
 langchain-community
 langchain-google-genai
-dotenv
 PyPDF2
 
 
