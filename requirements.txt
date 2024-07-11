@@ -2,5 +2,12 @@ streamlit
 pysqlite3-binary
 crewai
 crewai-tools
+langchain
+langchain-text-splitters
+langgraph
+langchain-community
+langchain-google-genai
+dotenv
+PyPDF2
 
 
