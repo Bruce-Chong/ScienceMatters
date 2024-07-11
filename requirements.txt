@@ -8,5 +8,5 @@ langgraph
 langchain-community
 langchain-google-genai
 PyPDF2
-
+faiss-gpu
 
