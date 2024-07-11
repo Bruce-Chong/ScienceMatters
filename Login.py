@@ -7,8 +7,8 @@ from dotenv import load_dotenv
 import os
 
 # Load environment variables
-load_dotenv("./env/dev.env")
-
+#load_dotenv("./env/dev.env")
+load_dotenv()
 st.set_page_config(page_title='Science Matters')
 
 logo=Image.open('Logo.png')
@@ -36,7 +36,7 @@ def login():
         if username == USERID and bcrypt.checkpw(password.encode('utf-8'), PASSWORD_HASH):
             st.session_state.authenticated = True
             st.success("Login successful!")
-            st.experimental_rerun()
+            st.rerun
         else:
             st.error("Invalid username or password. Please try again.")
 

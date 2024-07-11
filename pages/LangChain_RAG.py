@@ -45,13 +45,9 @@ def get_vector_store(text_chunks, api_key):
 
 def main():
     memory = SqliteSaver.from_conn_string(":memory:")
-    n = 1
-    x = 1
     tools = []
     teacher_agent = create_react_agent(llm, tools, checkpointer=memory)
     config = {"configurable": {"thread_id": "abc123"}}
-    st.write(f"I am at main {x}")
-    x = x + 1
     st.image(logo, width=300)
     st.title('Science Matters: An AI-Enhanced Tutor')
     # RAG Function Description
@@ -77,8 +73,6 @@ def main():
                 )
                 tools = [tool]
                 teacher_agent = create_react_agent(llm, tools, checkpointer=memory)
-                st.write(f"Teacher agent create{n}")
-                n = n + 1
                 #teacher_agent = create_react_agent(llm, tools, checkpointer=memory)
                 #config = {"configurable": {"thread_id": "abc123"}}
                 st.success("Done")
@@ -99,8 +93,8 @@ if st.session_state.authenticated:
     llm = ChatGoogleGenerativeAI(model="gemini-1.5-pro", temperature=0.3, google_api_key=api_key)
     logo = Image.open('Logo.png')
     # Load environment variables
-    load_dotenv("./env/dev.env")
-
+    #load_dotenv("./env/dev.env")
+    load_dotenv()
     main()
 
 else:

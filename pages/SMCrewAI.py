@@ -19,7 +19,8 @@ logo=Image.open('Logo.png')
 
 if st.session_state.authenticated:
     # Load environment variables
-    load_dotenv("./env/dev.env")
+    #load_dotenv("./env/dev.env")
+    load_dotenv()
     api_key = os.getenv("OPENAI_KEY")
     os.environ["OPENAI_API_KEY"] = api_key
     # Define the tools
