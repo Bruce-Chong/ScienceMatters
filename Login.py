@@ -36,7 +36,7 @@ def login():
         if username == USERID and bcrypt.checkpw(password.encode('utf-8'), PASSWORD_HASH):
             st.session_state.authenticated = True
             st.success("Login successful!")
-            st.rerun
+            st.rerun()
         else:
             st.error("Invalid username or password. Please try again.")
 
