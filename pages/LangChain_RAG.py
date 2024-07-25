@@ -4,6 +4,9 @@ from langchain_community.document_loaders import WebBaseLoader
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langgraph.checkpoint.sqlite import SqliteSaver
+# We can add "chat memory" to the graph with LangGraph's checkpointer
+# to retain the chat context between interactions
+from langgraph.checkpoint import MemorySaver
 from langgraph.prebuilt import create_react_agent
 from langchain_community.vectorstores import FAISS
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
@@ -19,7 +22,12 @@ from PIL import Image
 
 logo=Image.open('Logo.png')
 api_key = os.getenv("GEMINI_KEY")
+memory = MemorySaver()
+if "tools" not in st.session_state:
+    st.session_state.tools= []
 
+if "tagent" not in st.session_state:
+    st.session_state.tagent = []
 
 def get_pdf_text(pdf_docs):
     text = ""
@@ -42,17 +50,17 @@ def get_vector_store(text_chunks, api_key):
 
 
 def main():
-    memory = SqliteSaver.from_conn_string(":memory:")
+    #memory = SqliteSaver.from_conn_string(":memory:")
+
     tools = []
-    teacher_agent = create_react_agent(llm, tools, checkpointer=memory)
+    #teacher_agent = create_react_agent(llm, tools=tools, checkpointer=memory)
     config = {"configurable": {"thread_id": "abc123"}}
     st.image(logo, width=300)
     st.title('Science Matters: An AI-Enhanced Tutor')
     # RAG Function Description
-    rag_description = """Answer queries with uploaded document as context, using GEMINI-PRO LLM and Chroma as MIPS"""
+    rag_description = """Answer queries with uploaded document as context, using GEMINI-PRO LLM, FAISS as MIPS(Vector storing) and LangGraph Agents"""
     st.markdown(rag_description)
     st.subheader('Q&A record with SM AI-Tutor💁')
-
 
     with st.sidebar:
         st.title("Menu:")
@@ -66,12 +74,12 @@ def main():
                 retriever = vectorstore.as_retriever()
                 tool = create_retriever_tool(
                     retriever,
-                    "science teacher",
+                    "science_teacher",
                     "search the documents and answer the question from user.",
                 )
-                tools = [tool]
-                teacher_agent = create_react_agent(llm, tools, checkpointer=memory)
-                #teacher_agent = create_react_agent(llm, tools, checkpointer=memory)
+                st.session_state.tools = [tool]
+                #st.session_state.tools = []
+                st.session_state.tagent = create_react_agent(llm, tools=st.session_state.tools, checkpointer=memory)
                 #config = {"configurable": {"thread_id": "abc123"}}
                 st.success("Done")
 
@@ -82,12 +90,11 @@ def main():
         with st.chat_message("agent", avatar='👨🏻‍🏫'):
             message_placeholder = st.empty()
             with st.spinner('Thinking...'):
-                response = teacher_agent.invoke({"messages": [HumanMessage(content=user_input)]}, config=config)
+                response = st.session_state.tagent.invoke({"messages": [HumanMessage(content=user_input)]}, config=config)
                 for m in response['messages']:
                     message_placeholder.markdown(m.content)
 
 if st.session_state.authenticated:
-    memory = SqliteSaver.from_conn_string(":memory:")
     llm = ChatGoogleGenerativeAI(model="gemini-1.5-pro", temperature=0.3, google_api_key=api_key)
     logo = Image.open('Logo.png')
     # Load environment variables
