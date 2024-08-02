@@ -41,6 +41,13 @@ if "teachagent" not in st.session_state:
 if "agentdes" not in st.session_state:
     st.session_state.agentdes = "search the documents and answer the question from user."
 
+def get_pdf_text(pdf_docs):
+    text = ""
+    for pdf in pdf_docs:
+        pdf_reader = PdfReader(pdf)
+        for page in pdf_reader.pages:
+            text += page.extract_text()
+    return text
 def get_text_chunks(text):
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=10000, chunk_overlap=200)
     chunks = text_splitter.split_text(text)
@@ -65,23 +72,13 @@ def create_directory_loader(file_type, directory_path):
     )
 def loading():
     st.subheader("Please input RAG setup")
-
-    path_input = st.text_input("Directory path:👇")
+    pdf_docs = st.file_uploader("Upload PDF files, multiple files accepted:👇",
+                                accept_multiple_files=True, key="pdf_uploader")
     st.session_state.agentdes = st.text_input("Agent description👇", value=st.session_state.agentdes)
 
     if st.button("Start RAGGING!"):
         try:
-            rag_path = os.path.normpath(path_input)
-            # Initialize the DirectoryLoader with appropriate loaders
-            pdf_loader = create_directory_loader('.pdf', rag_path)
-            # Load the documents
-            st.session_state.rag = pdf_loader.load()
-
-            # Print the loaded documents' content and metadata
-            for doc in st.session_state.rag:
-                print(f"Filename: {doc.metadata['source']}")
-                print(f"Content: {doc.page_content[:500]}...")  # Print the first 500 characters for preview
-                print('-' * 80)
+            st.session_state.rag = pdf_docs
 
             main()
             return True
@@ -91,12 +88,8 @@ def loading():
 
 def main():
     memory = SqliteSaver.from_conn_string(":memory:")
-    #raw_text = get_pdf_text(docs)
-    text_chunks = []
-    for doc in st.session_state.rag:
-        chunks = get_text_chunks(doc.page_content)
-        text_chunks.extend(chunks)
-
+    raw_text = get_pdf_text(st.session_state.rag)
+    text_chunks = get_text_chunks(raw_text)
     vectorstore = get_vector_store(text_chunks, api_key)
     retriever = vectorstore.as_retriever()
     tool = create_retriever_tool(
