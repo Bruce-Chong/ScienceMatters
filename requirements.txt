@@ -13,3 +13,5 @@ supabase
 langchain_openai
 pytesseract
 pdfplumber
+scikit-learn
+sentence-transformers
