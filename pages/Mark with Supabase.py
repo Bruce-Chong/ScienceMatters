@@ -10,7 +10,8 @@ from langgraph.prebuilt import create_react_agent
 from langchain_community.tools import BaseTool
 import re
 import supabase
-from langchain_core.messages import HumanMessage
+from sentence_transformers import SentenceTransformer
+from sklearn.metrics.pairwise import cosine_similarity
 import os
 #error with streamlit hosting
 #from langgraph.checkpoint.sqlite import SqliteSaver
@@ -26,7 +27,8 @@ url = os.getenv("SUPABASE_URL")
 supa_api_key = os.getenv("SUPABASE_API_KEY")
 supabase_client = supabase.create_client(url, supa_api_key)
 
-
+#Semantic comparison with language models
+smodel = SentenceTransformer('all-MiniLM-L6-v2')
 def extract_questions_and_answers(text):
     """
     Extract multiple question-answer pairs from the text.
@@ -71,18 +73,21 @@ def superbase_fetch(question_number):
     else:
         return {"error": f"Model answer not found for {question_number}."}
 
-# Initialize Researcher agent and Assistant agent
+
 
 class TeacherTool(BaseTool):
     name = "TeacherTool"
-    description = "Compares user answer with the model answer and awards marks."
+    description = "Compares user answer with the model answer and awards marks according to the marks given. Every comparison must have a conclusion, do not followup with a question"
 
-    def _run(self, user_answer: str, model_answer: str, marks: int) -> str:
+    def _run(self, user_answer: str, correct_answer: str, marks: int) -> str:
         # Simple comparison logic to check correctness and assign marks
-        if user_answer.strip().lower() == model_answer.strip().lower():
+        user_embedding = smodel.encode(user_answer)
+        model_embedding = smodel.encode(correct_answer)
+        similarity = cosine_similarity([user_embedding], [model_embedding])[0][0]
+        if similarity > 0.8:  # Set your similarity threshold
             return f"Correct! You have been awarded {marks} marks."
         else:
-            return f"Incorrect. The correct answer was '{model_answer}'. You receive 0 marks."
+            return f"Incorrect. The correct answer was '{correct_answer}'. You receive 0 marks."
 
 
 # Initialize the Teacher Tool
@@ -167,46 +172,46 @@ def retrieve_and_grade_multiple_questions(question_answer_pairs):
 
     return results
 
-if st.session_state.authenticated:
-    # Streamlit layout
-    st.title("PDF Question Answer Grader with Assistant Agent")
+#if st.session_state.authenticated:
+# Streamlit layout
+st.title("PDF Question Answer Grader with Assistant Agent")
 
-    # Option 2: Upload PDF
-    uploaded_file = st.file_uploader("Upload a PDF document", type=["pdf"])
+# Option 2: Upload PDF
+uploaded_file = st.file_uploader("Upload a PDF document", type=["pdf"])
 
-    if uploaded_file is not None:
-        config = {"configurable": {"thread_id": "abc123"}}
-        # Extract text from the uploaded PDF using OCR
-        extracted_text = extract_text_from_pdf(uploaded_file)
-        if not extracted_text:
-            extracted_text = ocr_pdf(uploaded_file)
+if uploaded_file is not None:
+    config = {"configurable": {"thread_id": "abc123"}}
+    # Extract text from the uploaded PDF using OCR
+    extracted_text = extract_text_from_pdf(uploaded_file)
+    if not extracted_text:
+        extracted_text = ocr_pdf(uploaded_file)
 
-        # Display extracted text
-        st.write("Extracted Text from PDF:")
-        #st.write(extracted_text)
+    # Display extracted text
+    st.write("Extracted Text from PDF:")
+    #st.write(extracted_text)
 
-        if st.button("Grade Answers"):
-            # Step 1: Researcher agent extracts multiple questions and answers
-            question_answer_pairs = extract_questions_and_answers(extracted_text)
+    if st.button("Grade Answers"):
+        # Step 1: Researcher agent extracts multiple questions and answers
+        question_answer_pairs = extract_questions_and_answers(extracted_text)
 
-            if not question_answer_pairs:
-                st.write("No questions found in the document.")
-            else:
-                # Step 2: Process each question-answer pair
-                #st.write(question_answer_pairs)
-                grading_results = retrieve_and_grade_multiple_questions(question_answer_pairs)
+        if not question_answer_pairs:
+            st.write("No questions found in the document.")
+        else:
+            # Step 2: Process each question-answer pair
+            #st.write(question_answer_pairs)
+            grading_results = retrieve_and_grade_multiple_questions(question_answer_pairs)
 
-                #st.write(f'grading results is {grading_results}')
+            #st.write(f'grading results is {grading_results}')
 
-                # Step 3: Display results
-                for result in grading_results:
-                    st.write(f"Question: {result['question_number']}")
-                    st.write(f"Your Answer: {result['user_answer']}")
-                    st.write(f"Model Answer: {result['model_answer']}")
-                    st.write(f"Grading: {result['grading_result']}")
+            # Step 3: Display results
+            for result in grading_results:
+                st.write(f"Question: {result['question_number']}")
+                st.write(f"Your Answer: {result['user_answer']}")
+                st.write(f"Model Answer: {result['model_answer']}")
+                st.write(f"Grading: {result['grading_result']}")
 
-else:
+#else:
     # Prompt for login
-    st.warning("Please log in first before using SM AI-Tutor.")
+#    st.warning("Please log in first before using SM AI-Tutor.")
 
 
