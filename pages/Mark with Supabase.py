@@ -172,46 +172,46 @@ def retrieve_and_grade_multiple_questions(question_answer_pairs):
 
     return results
 
-#if st.session_state.authenticated:
-# Streamlit layout
-st.title("PDF Question Answer Grader with Assistant Agent")
+if st.session_state.authenticated:
+    # Streamlit layout
+    st.title("PDF Question Answer Grader with Assistant Agent")
 
-# Option 2: Upload PDF
-uploaded_file = st.file_uploader("Upload a PDF document", type=["pdf"])
+    # Option 2: Upload PDF
+    uploaded_file = st.file_uploader("Upload a PDF document", type=["pdf"])
 
-if uploaded_file is not None:
-    config = {"configurable": {"thread_id": "abc123"}}
-    # Extract text from the uploaded PDF using OCR
-    extracted_text = extract_text_from_pdf(uploaded_file)
-    if not extracted_text:
-        extracted_text = ocr_pdf(uploaded_file)
+    if uploaded_file is not None:
+        config = {"configurable": {"thread_id": "abc123"}}
+        # Extract text from the uploaded PDF using OCR
+        extracted_text = extract_text_from_pdf(uploaded_file)
+        if not extracted_text:
+            extracted_text = ocr_pdf(uploaded_file)
 
-    # Display extracted text
-    st.write("Extracted Text from PDF:")
-    #st.write(extracted_text)
+        # Display extracted text
+        st.write("Extracted Text from PDF:")
+        #st.write(extracted_text)
 
-    if st.button("Grade Answers"):
-        # Step 1: Researcher agent extracts multiple questions and answers
-        question_answer_pairs = extract_questions_and_answers(extracted_text)
+        if st.button("Grade Answers"):
+            # Step 1: Researcher agent extracts multiple questions and answers
+            question_answer_pairs = extract_questions_and_answers(extracted_text)
 
-        if not question_answer_pairs:
-            st.write("No questions found in the document.")
-        else:
-            # Step 2: Process each question-answer pair
-            #st.write(question_answer_pairs)
-            grading_results = retrieve_and_grade_multiple_questions(question_answer_pairs)
+            if not question_answer_pairs:
+                st.write("No questions found in the document.")
+            else:
+                # Step 2: Process each question-answer pair
+                #st.write(question_answer_pairs)
+                grading_results = retrieve_and_grade_multiple_questions(question_answer_pairs)
 
-            #st.write(f'grading results is {grading_results}')
+                #st.write(f'grading results is {grading_results}')
 
-            # Step 3: Display results
-            for result in grading_results:
-                st.write(f"Question: {result['question_number']}")
-                st.write(f"Your Answer: {result['user_answer']}")
-                st.write(f"Model Answer: {result['model_answer']}")
-                st.write(f"Grading: {result['grading_result']}")
+                # Step 3: Display results
+                for result in grading_results:
+                    st.write(f"Question: {result['question_number']}")
+                    st.write(f"Your Answer: {result['user_answer']}")
+                    st.write(f"Model Answer: {result['model_answer']}")
+                    st.write(f"Grading: {result['grading_result']}")
 
-#else:
+else:
     # Prompt for login
-#    st.warning("Please log in first before using SM AI-Tutor.")
+    st.warning("Please log in first before using SM AI-Tutor.")
 
 
