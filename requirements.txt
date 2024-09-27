@@ -12,5 +12,4 @@ faiss-cpu
 supabase
 langchain_openai
 pytesseract
-PIL
 pdfplumber
