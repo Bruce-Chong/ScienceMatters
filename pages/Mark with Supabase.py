@@ -12,9 +12,10 @@ import re
 import supabase
 from langchain_core.messages import HumanMessage
 import os
-from langgraph.checkpoint.sqlite import SqliteSaver
+#error with streamlit hosting
+#from langgraph.checkpoint.sqlite import SqliteSaver
 
-memory = SqliteSaver.from_conn_string(":memory:")
+#memory = SqliteSaver.from_conn_string(":memory:")
 
 # Initialize OpenAI API
 #api_key = os.getenv("OPENAI_KEYS")
