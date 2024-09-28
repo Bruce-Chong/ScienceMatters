@@ -80,14 +80,31 @@ class TeacherTool(BaseTool):
     description = "Compares user answer with the model answer and awards marks according to the marks given. Every comparison must have a conclusion, do not followup with a question"
 
     def _run(self, user_answer: str, correct_answer: str, marks: int) -> str:
-        # Simple comparison logic to check correctness and assign marks
+        # Simple comparison logic to check correctness and assign marks proportionally
         user_embedding = smodel.encode(user_answer)
         model_embedding = smodel.encode(correct_answer)
         similarity = cosine_similarity([user_embedding], [model_embedding])[0][0]
-        if similarity > 0.8:  # Set your similarity threshold
-            return f"Correct! You have been awarded {marks} marks."
+
+        print(f'the user_answer is {user_answer} and the marks is {marks} ')
+        # Initialize awarded marks
+        awarded_marks = 0
+
+        # Award marks based on similarity
+        if similarity >= 0.8:  # Full marks if similarity is above 80%
+            awarded_marks = marks
+        elif similarity > 0.5:  # Partial marks if similarity is between 50-80%
+            awarded_marks = round(similarity * marks)  # Scale marks proportionally
+
+        # Ensure awarded marks do not exceed total_marks (important step)
+        awarded_marks = min(awarded_marks, marks)
+
+        # Return the appropriate message
+        if similarity >= 0.8:
+            return f"Correct! You have been awarded {awarded_marks} marks."
+        elif similarity > 0.5:
+            return f"Partially correct. You have been awarded {awarded_marks} marks."
         else:
-            return f"Incorrect. The correct answer was '{correct_answer}'. You receive 0 marks."
+            return f"Incorrect. The correct answer was '{correct_answer}'. You receive {awarded_marks} marks."
 
 
 # Initialize the Teacher Tool
@@ -146,12 +163,13 @@ def retrieve_and_grade_multiple_questions(question_answer_pairs):
         model_answer = answer_result.get("model_answer")
         marks = answer_result.get("marks")
 
+        minput = f'You are a Primary school science teacher marking students question paper. Compare their answer :{user_answer},  with the model answer :{model_answer} ,give feedback and allocate marks {marks} accordingly'
         messages = [
-            {"role": "user", "content": user_answer},
-            {"role": "assistant", "content": model_answer},  # Optionally the agent's previous response
+            {"role": "user", "content": minput}
+            # Optionally the agent's previous response
         ]
-
         # Teacher agent grades the user's answer
+
         grading_result = teacher_agent.invoke({
             "user_answer": user_answer,
             "correct_answer": model_answer,
