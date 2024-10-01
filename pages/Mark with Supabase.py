@@ -188,7 +188,7 @@ def retrieve_and_grade_multiple_questions(question_answer_pairs):
         model_answer = answer_result.get("model_answer")
         marks = answer_result.get("marks")
 
-        minput = f'You are a Primary school science teacher marking students question paper. Compare their answer :{user_answer},  with the model answer :{model_answer} ,give feedback and allocate marks {marks} accordingly. Examine the student answer carefully and score it against the model answer. Do note that you are supposed to understand the context of the student answer and compare it against the context of the model answer. It is not a word for word comparison. Ignore any grammatical or spelling mistakes and do not penalize the student for that.'
+        minput = f'You are a Primary school science teacher marking students question paper. Consider carefully and mark their answer :{user_answer}, using the model answer :{model_answer} as a guide to the content of the correct answer. Give feedback and allocate marks {marks} accordingly. Do note that you are supposed to understand the context of the student answer and compare it against the context of the model answer. It is not a word for word comparison - using words with the same meaning is fine. Use your judgement as a teacher and mark wisely. Ignore any grammatical or spelling mistakes and do not penalize the student for that.'
         messages = [
             {"role": "user", "content": minput}
             # Optionally the agent's previous response
