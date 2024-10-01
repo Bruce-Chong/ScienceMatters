@@ -100,7 +100,7 @@ def superbase_fetch(question_number):
 
 class TeacherTool(BaseTool):
     name = "TeacherTool"
-    description = "Compares user answer with the model answer and awards marks according to the marks given. Every comparison must have a conclusion, do not followup with a question"
+    description = "Compares user answer with the model answer and awards marks according to the marks given. Every comparison must have a conclusion, do not followup with a question."
 
     def _run(self, user_answer: str, correct_answer: str, marks: int) -> str:
         # Simple comparison logic to check correctness and assign marks proportionally
@@ -136,7 +136,7 @@ class TeacherTool(BaseTool):
 teacher_tool = TeacherTool()
 
 # Create a Teacher agent using LangChain's React agent
-llm_teacher = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+llm_teacher = ChatOpenAI(model="gpt-4o", temperature=0)
 teacher_agent = create_react_agent(llm_teacher, tools=[teacher_tool])
 
 # OCR and text extraction from PDF
@@ -188,7 +188,7 @@ def retrieve_and_grade_multiple_questions(question_answer_pairs):
         model_answer = answer_result.get("model_answer")
         marks = answer_result.get("marks")
 
-        minput = f'You are a Primary school science teacher marking students question paper. Compare their answer :{user_answer},  with the model answer :{model_answer} ,give feedback and allocate marks {marks} accordingly'
+        minput = f'You are a Primary school science teacher marking students question paper. Compare their answer :{user_answer},  with the model answer :{model_answer} ,give feedback and allocate marks {marks} accordingly. Examine the student answer carefully and score it against the model answer. Do note that you are supposed to understand the context of the student answer and compare it against the context of the model answer. It is not a word for word comparison. Ignore any grammatical or spelling mistakes and do not penalize the student for that.'
         messages = [
             {"role": "user", "content": minput}
             # Optionally the agent's previous response
