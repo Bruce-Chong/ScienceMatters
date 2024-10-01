@@ -38,7 +38,7 @@ def scoring_agent(student_answer, model_answer):
     SystemMessage(content="You are a school teacher. Your job is to provide the score for an answer from a student by comparing it with the model answer, which will be given to you. Give a score between 0 and 1, where 0 is completely wrong, and 1 is completely right. Examine the student answer carefully and score it against the model answer."),
     HumanMessage(content="Please score the {student_answer} against the model answer given by {model_answer}.")]
 
-    return raw_score = scoring_llm(messages)
+    return scoring_llm(messages)
 
 
 def extract_questions_and_answers(text):
