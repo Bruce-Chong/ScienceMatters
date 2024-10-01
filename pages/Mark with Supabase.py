@@ -32,7 +32,7 @@ supabase_client = supabase.create_client(url, supa_api_key)
 smodel = SentenceTransformer('all-MiniLM-L6-v2')
 
 ## New function to do scoring by using LLM (Added by See Ho)
-def scoring_agent(student_answer, model_answer)
+def scoring_agent(student_answer, model_answer):
     scoring_llm = ChatOpenAI(model="gpt-4o", temperature=0.3)
     messages = [
     SystemMessage(content="You are a school teacher. Your job is to provide the score for an answer from a student by comparing it with the model answer, which will be given to you. Give a score between 0 and 1, where 0 is completely wrong, and 1 is completely right. Examine the student answer carefully and score it against the model answer."),
@@ -97,9 +97,7 @@ class TeacherTool(BaseTool):
         #model_embedding = smodel.encode(correct_answer)
         #similarity = cosine_similarity([user_embedding], [model_embedding])[0][0]
 
-        #similarity = scoring_agent(user_answer, correct_answer)
-
-        similarity = 1
+        similarity = scoring_agent(user_answer, correct_answer)
         
         print(f'the user_answer is {user_answer} and the marks is {marks} ')
         # Initialize awarded marks
