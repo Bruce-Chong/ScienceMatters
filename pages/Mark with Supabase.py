@@ -97,8 +97,10 @@ class TeacherTool(BaseTool):
         #model_embedding = smodel.encode(correct_answer)
         #similarity = cosine_similarity([user_embedding], [model_embedding])[0][0]
 
-        similarity = scoring_agent(user_answer, correct_answer)
+        #similarity = scoring_agent(user_answer, correct_answer)
 
+        similarity = 1
+        
         print(f'the user_answer is {user_answer} and the marks is {marks} ')
         # Initialize awarded marks
         awarded_marks = 0
