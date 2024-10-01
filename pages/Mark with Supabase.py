@@ -36,9 +36,20 @@ def scoring_agent(student_answer, model_answer):
     scoring_llm = ChatOpenAI(model="gpt-4o", temperature=0.3)
     messages = [
     SystemMessage(content="You are a school teacher. Your job is to provide the score for an answer from a student by comparing it with the model answer, which will be given to you. Give a score between 0 and 1, where 0 is completely wrong, and 1 is completely right. Examine the student answer carefully and score it against the model answer."),
-    HumanMessage(content="Please score the {student_answer} against the model answer given by {model_answer}.")]
+    HumanMessage(content="Please score the {student_answer} against the model answer given by {model_answer}. Only give the final score, and do not include any other text.")]
 
-    return scoring_llm(messages)
+    response = scoring_llm(messages)
+    
+    # Extract the score from the response
+    score_text = response.content.strip()
+    try:
+        score = float(re.findall(r"[-+]?\d*\.\d+|\d+", score_text)[0])
+        return min(max(score, 0.0), 1.0)  # Ensure the score is between 0 and 1
+    except (IndexError, ValueError):
+        # Handle cases where the LLM does not return a valid number
+        return 0.0
+
+
 
 
 def extract_questions_and_answers(text):
@@ -99,7 +110,7 @@ class TeacherTool(BaseTool):
 
         similarity = scoring_agent(user_answer, correct_answer)
         
-        print(f'the user_answer is {user_answer} and the marks is {marks} ')
+        print(f'the user_answer is {user_answer} and the marks is {marks}. Similarity score: {similarity}.')
         # Initialize awarded marks
         awarded_marks = 0
 
