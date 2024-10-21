@@ -117,9 +117,9 @@ def superbase_fetch(paper, question_number):
 
 
 class TeacherTool(BaseTool):
-    name = "TeacherTool"
     #description = "Compares user answer with the model answer and awards marks according to the marks given. Every comparison must have a conclusion, do not followup with a question"
-    description = st.session_state.teachdes
+    name: str = "TeacherTool"
+    description: str = st.session_state.teachdes
 
     def _run(self, user_answer: str, correct_answer: str, marks: int) -> str:
         # Simple comparison logic to check correctness and assign marks proportionally
