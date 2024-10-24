@@ -29,7 +29,7 @@ supabase_client = supabase.create_client(url, supa_api_key)
 smodel = SentenceTransformer('all-MiniLM-L6-v2')
 
 if "prompt" not in st.session_state:
-    st.session_state.prompt = f'You are a Primary school science teacher marking students question paper. Compare their answer :$useranswer,  with the model answer :$modelanswer ,give feedback and allocate marks $marks accordingly'
+    st.session_state.prompt = f'You are a Primary school science teacher marking students question paper. Compare their answer :$useranswer,  with the model answer :$modelanswer and the marking guide here: $aiprompt. Give feedback and allocate marks $marks accordingly'
 
 if "teachdes" not in st.session_state:
     st.session_state.teachdes = "Compares user answer with the model answer and awards marks according to the marks given. Every comparison must have a conclusion, do not followup with a question"
@@ -179,6 +179,7 @@ def retrieve_and_grade_multiple_questions(paper, question_answer_pairs):
         model_answer = answer_result.get("model_answer")
         marks = answer_result.get("marks")
         question_type = answer_result.get("question_type")
+        aiprompt = answer_result.get("prompt")
 
         print(f"question number is h{question_number}h and question type is h{question_type}h")
         if question_type == "MCQ":
@@ -196,10 +197,9 @@ def retrieve_and_grade_multiple_questions(paper, question_answer_pairs):
         else:
             #minput = f'You are a Primary school science teacher marking students question paper. Compare their answer :{user_answer},  with the model answer :{model_answer} ,give feedback and allocate marks {marks} accordingly'
             temp_obj = Template(st.session_state.prompt)
-            minput = temp_obj.substitute(useranswer = user_answer, modelanswer = model_answer, marks = marks)
+            minput = temp_obj.substitute(useranswer=user_answer, modelanswer=model_answer, aiprompt=aiprompt, marks=marks)
             messages = [
-                {"role": "user", "content": str(minput)}
-                # Optionally the agent's previous response
+                {"role": "user", "content": minput}
             ]
             # Teacher agent grades the user's answer
 
