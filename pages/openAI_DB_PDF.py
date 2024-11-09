@@ -124,7 +124,10 @@ def annotate_pdf(pdf_file, grading_results):
 
             # Save the modified PDF to display the change
             # Save the modified PDF
-    output_path = r"C:\Users\Choon Yong Chong\PycharmProjects\SMContentWriter\pdf\annotated_pdf.pdf"
+
+    #output_path = r"C:\Users\Choon Yong Chong\PycharmProjects\SMContentWriter\pdf\annotated_pdf.pdf"
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    output_path = os.path.join(dir_path, 'annotated_pdf.pdf')
     pdf_document.save(output_path)
 
     # Display the modified PDF
@@ -303,8 +306,8 @@ if st.session_state.authenticated:
     # Streamlit layout
     st.title("PDF Question Answer Grader with Assistant Agent")
 
-    st.text_input("Enter prompt for AI", value=st.session_state.prompt, key="prompt" )
-    st.text_input("Teacher Agent Description", value=st.session_state.teachdes, key="teach")
+    #st.text_input("Enter prompt for AI", value=st.session_state.prompt, key="prompt" )
+    #st.text_input("Teacher Agent Description", value=st.session_state.teachdes, key="teach")
     st.text_input("AI model", value=st.session_state.aimodel, key="ai")
     st.number_input("AI temperature from 0(strict) to 1(creative)", value=st.session_state.temperature, key="temp")
 
