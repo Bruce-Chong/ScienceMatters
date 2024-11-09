@@ -15,3 +15,5 @@ pytesseract
 pdfplumber
 scikit-learn
 sentence-transformers
+pymupdf
+pandas
