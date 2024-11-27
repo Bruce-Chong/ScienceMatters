@@ -86,7 +86,6 @@ def annotate_pdf(pdf_file, grading_results):
 
         #check if this page has drawings
         draw_df = mark_df[(mark_df['pageno'] == page_num) & (mark_df['type'] == "IMG")]
-        st.dataframe(draw_df)
 
         if widgets:
             # Get the position of the form field
