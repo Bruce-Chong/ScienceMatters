@@ -199,9 +199,7 @@ def retrieve_and_grade_multiple_questions(paper, qa_df):
             messages = f"""
                Based on the following guidelines, compare the user's answer to the model answer and provide a score out of {marks}. 
                Additionally, provide short and concise feedback ONLY if answer is wrong or partially right.
-               ### Marking Guidelines:
-               {aiprompt}
-    
+               
                ### Model Answer:
                {model_answer}
     
