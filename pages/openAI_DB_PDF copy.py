@@ -209,7 +209,7 @@ def retrieve_and_grade_multiple_questions(paper, qa_df):
                ### Instructions:
                Award marks out of {marks} based on the accuracy in standard format like 'Score: 2 marks', completeness, and clarity of the user's answer compared to the model answer.
                Assign the marks with a granularity of 0.5 marks. For example, 0.5, 1, 1.5, 2, 2.5, etc.
-               Feel free to assign half marks if the answer is partially correct.
+               Look out for key points, and assign marks 0.5 at a time. Feel free to assign half marks if the answer is partially correct.
                Do not penalize for spelling or grammatical errors. 
                Give short and concise feedback for improvement only if the score is below full marks.
                """
