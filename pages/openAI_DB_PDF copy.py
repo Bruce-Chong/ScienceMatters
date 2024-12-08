@@ -214,7 +214,7 @@ def retrieve_and_grade_multiple_questions(paper, qa_df):
                """
 
             grading_result = client.chat.completions.create(
-                                model="gpt-4o-mini",
+                                model="gpt-4o",
                                 messages=[
                                     {"role": "system", "content": "You are a Primary school science teacher marking student answers."},
                                     {"role": "user", "content": messages}
