@@ -197,8 +197,8 @@ def retrieve_and_grade_multiple_questions(paper, qa_df):
 
         else:
             messages = f"""
-               Be an elementary science school teacher ready to mark and score a student's answer.
-               Based on the following guidelines, compare the student's answer to the model answer and provide a score out of {marks}. 
+               You are an examiner grading elementary-level science exam responses. Your grading must strictly follow the given model answers and the specified scoring rules. Do not deviate from the model answers. 
+               Base all partial credit on how closely the student's response matches or aligns with these model answers.
                
                ### Model Answer:
                {model_answer}
@@ -208,6 +208,13 @@ def retrieve_and_grade_multiple_questions(paper, qa_df):
 
                ### Maximum marks for each question:
                {marks}
+
+               ###Scoring Guidelines:
+               Each question has a maximum mark (e.g., 2 marks per question, or as specified).
+               Award marks in increments of 0.5.
+               Only award full marks if the response matches the model answer closely in both content and scientific accuracy.
+               If the response is partially correct, award partial marks in increments of 0.5. If the answer is completely off or irrelevant, award 0 marks.
+               If the student’s response includes extraneous, incorrect, or misleading information that contradicts the model answer, reduce marks accordingly.
     
                ### Instructions:
                For each question, consider the marks given to the student's answer in a step-by-step manner.
@@ -217,6 +224,32 @@ def retrieve_and_grade_multiple_questions(paper, qa_df):
                Third, compare the student's answer to the model answer, and award marks for the question in standard format like 'Score: 2 marks' in increments of 0.5. Ensure you provide the final marks for each question in the standard format. You should award marks based on the completeness and clarity of the student's answer compared to the model answer. The marks assgined MUST be equal or lower than the maximum marks for the question.
                Fourth, do not penalize for spelling or grammatical errors. Only consider the scientific accuracy and completeness of the answer. It is important that the student uses the right words to capture the correct scientific concept.
                Fifth, provide short and concise feedback ONLY if answer is wrong or partially right.
+
+                ###Examples on how to award marks:
+
+               ##Example 1:
+               Question: There is an image showing many butterfly eggs laid on the egg. Explain how laying many eggs each time helps the butterfly in their survival.
+               Model answer: To increase the chances of some eggs hatching into young which will develop into adults that can reproduce to ensure the continuity of their kind.
+               Maximum marks: 1
+               Student's answer: To have more chances for the eggs to hatch into butterflies.
+               Scoring guidelines: 
+               - This question has a maximum of 1 marks.
+               - The two key points, of which each point is worth 0.5 marks, are: "increasing chances of some eggs hatching into young" and "ensuring the continuity of their kind".
+                - The student's answer only covers the first key point, so award 0.5 marks.
+                - Score: 0.5 marks
+
+                ##Example 2:
+                Question: There is an image showing how an electircal circuit can be opened and closed through the closing and opening of a door respectively, and thus ringing a bell. Explain how the bell would ring when Peter pushed the door open.
+                Model answer: When the door was opened, The copper strip attached to the door will touch the other copper strip to form a closed circuit.
+                Maximum marks: 2
+                Student's answer: When the copper strip on the door touch the other copper strip, the circuit becomes a closed circuit and electric current can flow thorugh to ring the bell.
+                Scoring guidelines:
+                - This question has a maximum of 2 marks.
+                - There are 3 key points: "When the door was opened" which describes the required action to close the circuit. "The copper strip attached to the door will touch the other copper strip" which describes the closing of the circuit. "form a closed circuit" which describes the completion of the circuit, and where the phrase closed circuit is the key here.
+                - The student's answer did not mention the action of the door being opened, but covered the other two key points on the concept of a closed circuit.
+                - Delete 0.5 marks for the minor omission of the door being opened, and award 1.5 marks for the other two key points.
+                - Score: 1.5 marks
+
                """
 
             grading_result = client.chat.completions.create(
@@ -236,6 +269,31 @@ def retrieve_and_grade_multiple_questions(paper, qa_df):
 
     #doc.close()
     return results
+
+## instructions_4 prompt
+# messages = f"""
+#                Be an elementary science school teacher ready to mark and score a student's answer.
+#                Based on the following guidelines, compare the student's answer to the model answer and provide a score out of {marks}. 
+               
+#                ### Model Answer:
+#                {model_answer}
+    
+#                ### Student's Answer:
+#                {user_answer}
+
+#                ### Maximum marks for each question:
+#                {marks}
+    
+#                ### Instructions:
+#                For each question, consider the marks given to the student's answer in a step-by-step manner.
+#                First, look at the model answer and the maximum marks for the question. Marks are given in 0.5 increments.
+#                Second, determine the key points in the model answer and decide how many marks to award for each point, in increments of 0.5. For example, for a question with 2 key points of roughly equal importance, assign 0.5 marks to each. Another example - for a question that has 2 entities/phrases in the model answer, assign 0.5 marks to each.
+#                In determining the key points, do take note of key scientific terms and descriptions, or certain actions that are given in the model answer. Be very precise in the concepts and scientific terms. For example, air is not the same as water vapour, and vice versa.
+#                Third, compare the student's answer to the model answer, and award marks for the question in standard format like 'Score: 2 marks' in increments of 0.5. Ensure you provide the final marks for each question in the standard format. You should award marks based on the completeness and clarity of the student's answer compared to the model answer. The marks assgined MUST be equal or lower than the maximum marks for the question.
+#                Fourth, do not penalize for spelling or grammatical errors. Only consider the scientific accuracy and completeness of the answer. It is important that the student uses the right words to capture the correct scientific concept.
+#                Fifth, provide short and concise feedback ONLY if answer is wrong or partially right.
+#                """
+
 
 if 'authenticated' not in st.session_state:
     st.session_state.authenticated = False
