@@ -197,21 +197,25 @@ def retrieve_and_grade_multiple_questions(paper, qa_df):
 
         else:
             messages = f"""
-               Based on the following guidelines, compare the user's answer to the model answer and provide a score out of {marks}. 
-               Additionally, provide short and concise feedback ONLY if answer is wrong or partially right.
+               Be an elementary science school teacher ready to mark and score a student's answer.
+               Based on the following guidelines, compare the student's answer to the model answer and provide a score out of {marks}. 
                
                ### Model Answer:
                {model_answer}
     
-               ### User's Answer:
+               ### Student's Answer:
                {user_answer}
+
+               ### Maximum marks for each question:
+               {marks}
     
                ### Instructions:
-               Award marks out of {marks} based on the accuracy in standard format like 'Score: 2 marks', completeness, and clarity of the user's answer compared to the model answer.
-               Assign the marks with a granularity of 0.5 marks. For example, 0.5, 1, 1.5, 2, 2.5, etc.
-               Look out for key points, and assign marks 0.5 at a time. Feel free to assign half marks if the answer is partially correct.
-               Do not penalize for spelling or grammatical errors. 
-               Give short and concise feedback for improvement only if the score is below full marks.
+               For each question, consider the marks given to the student's answer in a step-by-step manner.
+               First, look at the model answer and the maximum marks for the question. Marks are given in 0.5 increments.
+               Second, determine the key points in the model answer and decide how many marks to award for each point, in increments of 0.5. For example, for a question with 2 key points of roughly equal importance, assign 0.5 marks to each. 
+               Third, compare the student's answer to the model answer, and award marks for the question in standard format like 'Score: 2 marks' in increments of 0.5. You should award marks based on the completeness and clarity of the student's answer compared to the model answer. The marks assgined MUST be equal or lower than the maximum marks for the question.
+               Fourth, do not penalize for spelling or grammatical errors. Only consider the scientific accuracy and completeness of the answer. It is important that the student uses the right words to capture the correct scientific concept.
+               Fifth, provide short and concise feedback ONLY if answer is wrong or partially right.
                """
 
             grading_result = client.chat.completions.create(
