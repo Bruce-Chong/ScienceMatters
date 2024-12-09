@@ -128,8 +128,8 @@ def superbase_fetch(paper):
 
 def update_results(res, grade,packed_ans, rect):
     # Use regex to parse out the awarded marks and feedback
-    mark_match = re.search(r"Score:\s*(\d+)", grade)
-    marks_awarded = int(mark_match.group(1)) if mark_match else None
+    mark_match = re.search(r"Score:\s*(\d+(\.\d+)?)", grade)   #changed regex to capture decimal places
+    marks_awarded = mark_match.group(1) if mark_match else None
     packed_ans.gmarks = marks_awarded
 
 
