@@ -215,9 +215,10 @@ def retrieve_and_grade_multiple_questions(paper, qa_df):
                Only award full marks if the response matches the model answer closely in both content and scientific accuracy.
                If the response is partially correct, award partial marks in increments of 0.5. If the answer is completely off or irrelevant, award 0 marks.
                If the student’s response includes extraneous, incorrect, or misleading information that contradicts the model answer, reduce marks accordingly.
-               Student's response has to be very precise in the use of scientific terms. For example, mentioning "air" to indicate "water vapour in the air" is incorrect.
-               Penalize wrong scientific terms or concepts. For example, "the temperature of water gains heat..." is incorrect because temperature is not a substance that can gain heat. It should be "the water gains heat...".
-               Always expect an explicit answer, and the marker should not infer or assume any information that is not explicitly stated in the student's response. For example, "oxygen is carried through the body" is incorrect if the student did not mention "blood" as the carrier.
+               Student's response has to be very precise in the use of scientific terms. For example, mentioning "air" to indicate "water vapour in the air" is incorrect. Penalize at least 0.5 marks for such errors.
+               Penalize wrong scientific terms or concepts. For example, "the temperature of water gains heat..." is incorrect because temperature is not a substance that can gain heat. It should be "the water gains heat...". Penalize at least 0.5 marks for such errors.
+               Always expect an explicit answer, and the marker should not infer or assume any information that is not explicitly stated in the student's response. For example, "oxygen is carried through the body" is incorrect if the student did not mention "blood" as the carrier. Penalize at least 0.5 marks for such errors.
+               Only give full marks if the student's response is complete, accurate, precise and scientfically correct. If the student's response is incomplete, award partial marks based on the completeness and accuracy of the response.
 
                ### Instructions:
                For each question, consider the marks given to the student's answer in a step-by-step manner.
