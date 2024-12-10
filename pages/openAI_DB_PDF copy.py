@@ -215,7 +215,10 @@ def retrieve_and_grade_multiple_questions(paper, qa_df):
                Only award full marks if the response matches the model answer closely in both content and scientific accuracy.
                If the response is partially correct, award partial marks in increments of 0.5. If the answer is completely off or irrelevant, award 0 marks.
                If the student’s response includes extraneous, incorrect, or misleading information that contradicts the model answer, reduce marks accordingly.
-    
+               Student's response has to be very precise in the use of scientific terms. For example, mentioning "air" to indicate "water vapour in the air" is incorrect.
+               Penalize wrong scientific terms or concepts. For example, "the temperature of water gains heat..." is incorrect because temperature is not a substance that can gain heat. It should be "the water gains heat...".
+               Always expect an explicit answer, and the marker should not infer or assume any information that is not explicitly stated in the student's response. For example, "oxygen is carried through the body" is incorrect if the student did not mention "blood" as the carrier.
+
                ### Instructions:
                For each question, consider the marks given to the student's answer in a step-by-step manner.
                First, look at the model answer and the maximum marks for the question. Marks are given in 0.5 increments.
