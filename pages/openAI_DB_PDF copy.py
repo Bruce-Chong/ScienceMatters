@@ -217,15 +217,15 @@ def retrieve_and_grade_multiple_questions(paper, qa_df):
 
                ###Scoring Guidelines:
                Each question has a maximum mark (e.g., 2 marks per question, or as specified).
-               Award marks in increments of 0.5.
+               Award marks in increments of 0.5 marks for questions will a maximum of 1 mark. For questions with a maximum of 2 marks, award marks in increments of 1 mark.
                Only award full marks if the response matches the model answer closely in both content and scientific accuracy. The model answer is the source of truth. Do not assume answers on your own.
-               If the response is partially correct, award partial marks in increments of 0.5. If the answer is completely off or irrelevant, award 0 marks.
+               If the response is partially correct, award partial marks in increments of 0.5 or 1. 
                If the student’s response includes extraneous, incorrect, or misleading information that contradicts the model answer, reduce marks accordingly.
-               Student's response has to be very precise in the use of scientific terms. For example, mentioning "air" to indicate "water vapour in the air" is incorrect. Penalize at least 0.5 marks for such errors.
+               Student's response has to be very precise in the use of scientific terms. For example, mentioning "air" to indicate "water vapour in the air" is incorrect. Penalize marks for such errors.
                Penalize wrong scientific terms or concepts. For example, "the temperature of water gains heat..." is incorrect because temperature is not a substance that can gain heat. It should be "the water gains heat...". Do not award any marks for the answer if the scientific terms or concepts are wrong, even if other parts of the answers are correct. Since this is a science exam, scientific accuracy in terms and concepts is paramount.
                Always expect an explicit answer, and the marker should not infer or assume any information that is not explicitly stated in the student's response. For example, "oxygen is carried through the body" is incorrect if the student did not mention "blood" as the carrier. Do not attempt to read between the lines and accept imprecise or incomplete sentences. Penalize at least 0.5 marks for such errors.
-               Take note of the subject and object in the model answer. For example, "the sun heats the earth" is different from "the earth heats the sun". Penalize at least 0.5 marks for such errors.
-               Take note of the subect and the verb in the model answer. For example, "the sun heats the earth" is different from "the sun cools the earth". Penalize at least 0.5 marks for such errors.
+               Take note of the subject and object in the model answer. For example, "the sun heats the earth" is different from "the earth heats the sun". Penalize marks for such errors.
+               Take note of the subect and the verb in the model answer. For example, "the sun heats the earth" is different from "the sun cools the earth". Penalize marks for such errors.
                Only give full marks if the student's response is complete, accurate, precise and scientfically correct. If the student's response is incomplete, award partial marks based on the completeness and accuracy of the response.
                If you feel the answer is imprecise, do not give full marks! If the answer is correct but imprecise, award partial marks based on the correctness of the answer.
 
@@ -261,8 +261,8 @@ def retrieve_and_grade_multiple_questions(paper, qa_df):
                 - This question has a maximum of 2 marks.
                 - There are 3 key points: "When the door was opened" which describes the required action to close the circuit. "The copper strip attached to the door will touch the other copper strip" which describes the closing of the circuit. "form a closed circuit" which describes the completion of the circuit, and where the phrase closed circuit is the key here.
                 - The student's answer did not mention the action of the door being opened, but covered the other two key points on the concept of a closed circuit.
-                - Delete 0.5 marks for the minor omission of the door being opened, and award 1.5 marks for the other two key points.
-                - Score: 1.5 marks
+                - Delete 1 mark for the omission of the door being opened, and award 1 marks for the other two key points.
+                - Score: 1 marks
 
                """
 
