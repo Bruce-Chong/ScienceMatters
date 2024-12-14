@@ -21,6 +21,7 @@ from dataclasses import dataclass
 class Answer:
     question_number: str
     question_type: str
+    original_question: str
     user_answer: str
     model_answer: str
     grading_result: str
@@ -164,11 +165,13 @@ def retrieve_and_grade_multiple_questions(paper, qa_df):
         model_answer = row["answer"]
         marks =row["marks"]
         question_type =row["question_type"]
+        original_question = row["question"]
         aiprompt =row["prompt"]
 
         packed_answer = Answer(
             question_number=question_number,
             question_type=question_type,
+            original_question = original_question,
             user_answer=user_answer,
             model_answer=model_answer,
             grading_result="",
@@ -200,6 +203,9 @@ def retrieve_and_grade_multiple_questions(paper, qa_df):
                You are an examiner grading elementary-level science exam responses. Your grading must strictly follow the given model answers and the specified scoring rules. Do not deviate from the model answers. 
                Base all partial credit on how closely the student's response matches or aligns with these model answers.
                
+               ###Question:
+               {original_question}
+               
                ### Model Answer:
                {model_answer}
     
@@ -212,7 +218,7 @@ def retrieve_and_grade_multiple_questions(paper, qa_df):
                ###Scoring Guidelines:
                Each question has a maximum mark (e.g., 2 marks per question, or as specified).
                Award marks in increments of 0.5.
-               Only award full marks if the response matches the model answer closely in both content and scientific accuracy.
+               Only award full marks if the response matches the model answer closely in both content and scientific accuracy. The model answer is the source of truth. Do not assume answers on your own.
                If the response is partially correct, award partial marks in increments of 0.5. If the answer is completely off or irrelevant, award 0 marks.
                If the student’s response includes extraneous, incorrect, or misleading information that contradicts the model answer, reduce marks accordingly.
                Student's response has to be very precise in the use of scientific terms. For example, mentioning "air" to indicate "water vapour in the air" is incorrect. Penalize at least 0.5 marks for such errors.
@@ -221,9 +227,11 @@ def retrieve_and_grade_multiple_questions(paper, qa_df):
                Take note of the subject and object in the model answer. For example, "the sun heats the earth" is different from "the earth heats the sun". Penalize at least 0.5 marks for such errors.
                Take note of the subect and the verb in the model answer. For example, "the sun heats the earth" is different from "the sun cools the earth". Penalize at least 0.5 marks for such errors.
                Only give full marks if the student's response is complete, accurate, precise and scientfically correct. If the student's response is incomplete, award partial marks based on the completeness and accuracy of the response.
+               If you feel the answer is imprecise, do not give full marks! If the answer is correct but imprecise, award partial marks based on the correctness of the answer.
 
                ### Instructions:
                For each question, consider the marks given to the student's answer in a step-by-step manner.
+               Understand the question, and determine what the student's answer should contain. The answer should be precise and directly anwering the question. 
                First, look at the model answer and the maximum marks for the question. Marks are given in 0.5 increments.
                Second, determine the key points in the model answer and decide how many marks to award for each point, in increments of 0.5. For example, for a question with 2 key points of roughly equal importance, assign 0.5 marks to each. Another example - for a question that has 2 entities/phrases in the model answer, assign 0.5 marks to each.
                In determining the key points, do take note of key scientific terms and descriptions, or certain actions that are given in the model answer. Be very precise in the concepts and scientific terms. For example, air is not the same as water vapour, and vice versa.
