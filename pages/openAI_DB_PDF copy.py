@@ -227,7 +227,7 @@ def retrieve_and_grade_multiple_questions(paper, qa_df):
                Take note of the subject and object in the model answer. For example, "the sun heats the earth" is different from "the earth heats the sun". Penalize marks for such errors.
                Take note of the subect and the verb in the model answer. For example, "the sun heats the earth" is different from "the sun cools the earth". Penalize marks for such errors.
                Only give full marks if the student's response is complete, accurate, precise and scientfically correct. If the student's response is incomplete, award partial marks based on the completeness and accuracy of the response.
-               If you feel the answer is imprecise, do not give full marks! If the answer is correct but imprecise, award partial marks based on the correctness of the answer.
+               Be a strict marker! If you feel the answer is imprecise, NEVER give full marks! If the answer is correct but imprecise, award partial marks based on the correctness of the answer.
 
                ### Instructions:
                For each question, consider the marks given to the student's answer in a step-by-step manner.
