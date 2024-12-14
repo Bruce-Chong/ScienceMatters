@@ -222,8 +222,8 @@ def retrieve_and_grade_multiple_questions(paper, qa_df):
                If the response is partially correct, award partial marks in increments of 0.5 or 1. 
                If the student’s response includes extraneous, incorrect, or misleading information that contradicts the model answer, reduce marks accordingly.
                Student's response has to be very precise in the use of scientific terms. For example, mentioning "air" to indicate "water vapour in the air" is incorrect. Penalize marks for such errors.
-               Penalize wrong scientific terms or concepts. For example, "the temperature of water gains heat..." is incorrect because temperature is not a substance that can gain heat. It should be "the water gains heat...". Do not award any marks for the answer if the scientific terms or concepts are wrong, even if other parts of the answers are correct. Since this is a science exam, scientific accuracy in terms and concepts is paramount.
-               Always expect an explicit answer, and the marker should not infer or assume any information that is not explicitly stated in the student's response. For example, "oxygen is carried through the body" is incorrect if the student did not mention "blood" as the carrier. Do not attempt to read between the lines and accept imprecise or incomplete sentences. Penalize at least 0.5 marks for such errors.
+               Penalize wrong scientific terms or concepts. For example, "the temperature of water gains heat..." is incorrect because temperature is not a substance that can gain heat. It should be "the water gains heat...". Always award 0 marks for the answer if the scientific terms or concepts are wrong, even if other parts of the answers are correct. Since this is a science exam, scientific accuracy in terms and concepts is paramount.
+               Always expect an explicit answer, and the marker should not infer or assume any information that is not explicitly stated in the student's response. For example, "oxygen is carried through the body" is incorrect if the student did not mention "blood" as the carrier. Do not attempt to read between the lines and accept imprecise or incomplete sentences. Penalize marks for such errors.
                Take note of the subject and object in the model answer. For example, "the sun heats the earth" is different from "the earth heats the sun". Penalize marks for such errors.
                Take note of the subect and the verb in the model answer. For example, "the sun heats the earth" is different from "the sun cools the earth". Penalize marks for such errors.
                Only give full marks if the student's response is complete, accurate, precise and scientfically correct. If the student's response is incomplete, award partial marks based on the completeness and accuracy of the response.
@@ -232,10 +232,10 @@ def retrieve_and_grade_multiple_questions(paper, qa_df):
                ### Instructions:
                For each question, consider the marks given to the student's answer in a step-by-step manner.
                Understand the question, and determine what the student's answer should contain. The answer should be precise and directly anwering the question. 
-               First, look at the model answer and the maximum marks for the question. Marks are given in 0.5 increments.
-               Second, determine the key points in the model answer and decide how many marks to award for each point, in increments of 0.5. For example, for a question with 2 key points of roughly equal importance, assign 0.5 marks to each. Another example - for a question that has 2 entities/phrases in the model answer, assign 0.5 marks to each.
+               First, look at the model answer and the maximum marks for the question.
+               Second, determine the key points in the model answer and decide how many marks to award for each point. For example, for a question with 2 key points of roughly equal importance, assign 0.5 marks to each. Another example - for a question that has 2 entities/phrases in the model answer, assign 0.5 marks to each. For questions with maximum marks of 1, ONLY assign 0.5 or 1. For questions with maximum marks of 2, ONLY assign 1 or 2.
                In determining the key points, do take note of key scientific terms and descriptions, or certain actions that are given in the model answer. Be very precise in the concepts and scientific terms. For example, air is not the same as water vapour, and vice versa.
-               Third, compare the student's answer to the model answer, and award marks for the question in standard format like 'Score: 2 marks' in increments of 0.5. Ensure you provide the final marks for each question in the standard format. You should award marks based on the completeness and clarity of the student's answer compared to the model answer. The marks assgined MUST be equal or lower than the maximum marks for the question.
+               Third, compare the student's answer to the model answer, and award marks for the question in standard format like 'Score: 2 marks'. Ensure you provide the final marks for each question in the standard format. You should award marks based on the completeness and clarity of the student's answer compared to the model answer. The marks assgined MUST be equal or lower than the maximum marks for the question.
                Fourth, do not penalize for spelling or grammatical errors. Only consider the scientific accuracy and completeness of the answer. It is important that the student uses the right words to capture the correct scientific concept.
                Fifth, provide short and concise feedback ONLY if answer is wrong or partially right.
 
@@ -262,7 +262,7 @@ def retrieve_and_grade_multiple_questions(paper, qa_df):
                 - There are 3 key points: "When the door was opened" which describes the required action to close the circuit. "The copper strip attached to the door will touch the other copper strip" which describes the closing of the circuit. "form a closed circuit" which describes the completion of the circuit, and where the phrase closed circuit is the key here.
                 - The student's answer did not mention the action of the door being opened, but covered the other two key points on the concept of a closed circuit.
                 - Delete 1 mark for the omission of the door being opened, and award 1 marks for the other two key points.
-                - Score: 1 marks
+                - Score: 1 mark
 
                """
 
