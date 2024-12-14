@@ -45,7 +45,7 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 smodel = SentenceTransformer('all-MiniLM-L6-v2')
 
 if "aimodel" not in st.session_state:
-    st.session_state.aimodel = "gpt-o1"
+    st.session_state.aimodel = "gpt-4o"
 
 if "temperature" not in st.session_state:
     st.session_state.temperature = 0
@@ -267,7 +267,7 @@ def retrieve_and_grade_multiple_questions(paper, qa_df):
                """
 
             grading_result = client.chat.completions.create(
-                                model="gpt-o1",
+                                model="gpt-4o",
                                 messages=[
                                     {"role": "system", "content": "You are a Primary school science teacher marking student answers."},
                                     {"role": "user", "content": messages}
