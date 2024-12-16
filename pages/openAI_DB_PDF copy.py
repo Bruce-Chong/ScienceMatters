@@ -200,72 +200,170 @@ def retrieve_and_grade_multiple_questions(paper, qa_df):
 
         else:
             messages = f"""
-               You are an examiner grading elementary-level science exam responses. Your grading must strictly follow the given model answers and the specified scoring rules. Do not deviate from the model answers. 
-               Base all partial credit on how closely the student's response matches or aligns with these model answers.
-               
-               ###Question:
-               {original_question}
-               
-               ### Model Answer:
-               {model_answer}
-    
-               ### Student's Answer:
-               {user_answer}
+                You are an examiner grading elementary-level science exam responses. Your grading must strictly follow the given model answers and the specified scoring rules. Do not deviate from the model answers. 
+                Base all partial credit on how closely the student's response matches or aligns with these model answers.
 
-               ### Maximum marks for each question:
-               {marks}
+                ###Question:
+                {original_question}
 
-               ###Scoring Guidelines:
-               Each question has a maximum mark (e.g., 2 marks per question, or as specified).
-               Award marks in increments of 0.5 marks for questions will a maximum of 1 mark. For questions with a maximum of 2 marks, award marks in increments of 1 mark.
-               Only award full marks if the response matches the model answer closely in both content and scientific accuracy. The model answer is the source of truth. Do not assume answers on your own.
-               If the response is partially correct, award partial marks in increments of 0.5 or 1. 
-               If the student’s response includes extraneous, incorrect, or misleading information that contradicts the model answer, reduce marks accordingly.
-               Student's response has to be very precise in the use of scientific terms. For example, mentioning "air" to indicate "water vapour in the air" is incorrect. Penalize marks for such errors.
-               Penalize wrong scientific terms or concepts. For example, "the temperature of water gains heat..." is incorrect because temperature is not a substance that can gain heat. It should be "the water gains heat...". Always award 0 marks for the answer if the scientific terms or concepts are wrong, even if other parts of the answers are correct. Since this is a science exam, scientific accuracy in terms and concepts is paramount.
-               Always expect an explicit answer, and the marker should not infer or assume any information that is not explicitly stated in the student's response. For example, "oxygen is carried through the body" is incorrect if the student did not mention "blood" as the carrier. Do not attempt to read between the lines and accept imprecise or incomplete sentences. Penalize marks for such errors.
-               Take note of the subject and object in the model answer. For example, "the sun heats the earth" is different from "the earth heats the sun". Penalize marks for such errors.
-               Take note of the subect and the verb in the model answer. For example, "the sun heats the earth" is different from "the sun cools the earth". Penalize marks for such errors.
-               Only give full marks if the student's response is complete, accurate, precise and scientfically correct. If the student's response is incomplete, award partial marks based on the completeness and accuracy of the response.
-               Be a strict marker! If you feel the answer is imprecise, NEVER give full marks! If the answer is correct but imprecise, award partial marks based on the correctness of the answer.
-               Be a strict marker! If essential concepts or information are missing, award 0 marks. Do NOT award partial marks for missing essential information.
+                ### Model Answer:
+                {model_answer}
 
-               ### Instructions:
-               For each question, consider the marks given to the student's answer in a step-by-step manner.
-               Understand the question, and determine what the student's answer should contain. The answer should be precise and directly anwering the question. 
-               First, look at the model answer and the maximum marks for the question.
-               Second, determine the key points in the model answer and decide how many marks to award for each point. For example, for a question with 2 key points of roughly equal importance, assign 0.5 marks to each. Another example - for a question that has 2 entities/phrases in the model answer, assign 0.5 marks to each. For questions with maximum marks of 1, ONLY assign 0.5 or 1. For questions with maximum marks of 2, ONLY assign 1 or 2.
-               In determining the key points, do take note of key scientific terms and descriptions, or certain actions that are given in the model answer. Be very precise in the concepts and scientific terms. For example, air is not the same as water vapour, and vice versa.
-               Third, compare the student's answer to the model answer, and award marks for the question in standard format like 'Score: 2 marks'. Ensure you provide the final marks for each question in the standard format. You should award marks based on the completeness and clarity of the student's answer compared to the model answer. The marks assgined MUST be equal or lower than the maximum marks for the question.
-               Fourth, do not penalize for spelling or grammatical errors. Only consider the scientific accuracy and completeness of the answer. It is important that the student uses the right words to capture the correct scientific concept.
-               Fifth, provide short and concise feedback ONLY if answer is wrong or partially right.
+                ### Student's Answer:
+                {user_answer}
+
+                ### Maximum marks for each question:
+                {marks}
+
+                ###Scoring Guidelines:
+
+                1. **Strictly follow the model answer**: 
+                - The model answer is the source of truth. Award marks only for points explicitly covered in the model answer.
+                - Do not infer or assume any additional information. 
+                - If the student’s response has any incorrect or misleading information that contradicts the model answer, reduce marks accordingly (down to zero if scientific terms are used incorrectly).
+
+                2. **Breaking down key points**:
+                - Before evaluating, identify the “key points” from the model answer. 
+                - Each key point should correspond to the specific scientific facts, terms, or concepts required by the model answer.
+                - For each key point, assign a specific mark value. The sum of these key point values must equal the maximum marks for the question.
+                    - For questions worth 1 mark total: break the model answer down into 2 equally important key points (each worth 0.5 marks) if it makes sense, or treat the entire model answer as 1 key point if the question demands a single concept. 
+                    - Marks must be awarded in increments of 0.5 (i.e., 0, 0.5, or 1).
+                    - For questions worth 2 marks total: break the model answer down into either 2 key points (each worth 1 mark) or 4 key points (each worth 0.5 marks), whichever is most logical based on the content. 
+                    - Marks must be awarded in increments of 1 mark if using 2 key points (0, 1, or 2). Alternatively, if you choose 4 key points, each key point is worth 0.5 marks (so possible scores become 0, 0.5, 1, 1.5, or 2). The key is consistency and clarity in distribution.
+
+                3. **Comparing student’s answer to key points**:
+                - For each key point, verify if the student’s answer:
+                    - **Accurately includes** the scientific concept or fact from the model answer,
+                    - **Uses correct scientific terms** (e.g., “water vapor” instead of “air,” “the water gains heat” instead of “the temperature gains heat”).
+                - Award the mark value for each correct key point. If the concept is missing or inaccurately stated, award 0 for that key point.
+
+                4. **Penalizing incorrect or missing essential info**:
+                - If any essential concept from the model answer is missing, the corresponding mark(s) for that key point is lost.
+                - If the student misuses scientific terms or flips subject/object (“the earth heats the sun” instead of “the sun heats the earth”), that key point should be awarded 0.
+                - If the entire answer relies on fundamentally incorrect terminology or concepts, the total score may be 0 even if some parts are correct.
+
+                5. **No inference**:
+                - Do not infer correctness if the student’s answer does not explicitly state the required concept. 
+                - Imprecise or incomplete phrasing should be penalized.
+
+                6. **Spelling and grammar**:
+                - Do not penalize minor spelling or grammatical errors. Focus solely on scientific accuracy.
+
+                7. **Final Score & Short Feedback**:
+                - After assigning marks for each key point, sum them up. This is the final score for the question, which cannot exceed the maximum marks.
+                - Provide the final score in the format “Score: X mark(s)”.
+                - If the answer is partially or entirely incorrect, provide a **brief** explanation of the missing or incorrect points.
+
+                ### Instructions for Marking (Step-by-Step):
+
+                **Step 1:** Identify the maximum marks and break down the model answer into the appropriate number of “key points.” Assign each key point its corresponding mark value.
+
+                **Step 2:** Compare each key point against the student’s response. Check for precise scientific accuracy and terminology. 
+                - If the student addresses the key point accurately, award the full mark value for that point.
+                - If the student is missing the concept or uses incorrect terminology, award 0 for that key point.
+
+                **Step 3:** Sum the awarded marks to find the total for this question. Make sure it does not exceed the maximum possible marks.
+
+                **Step 4:** Output the final score in the standard format (“Score: X mark(s)”). If not full marks, provide short feedback describing which key points were missing or incorrect.
 
                 ###Examples on how to award marks:
 
-               ##Example 1:
-               Question: There is an image showing many butterfly eggs laid on the egg. Explain how laying many eggs each time helps the butterfly in their survival.
-               Model answer: To increase the chances of some eggs hatching into young which will develop into adults that can reproduce to ensure the continuity of their kind.
-               Maximum marks: 1
-               Student's answer: To have more chances for the eggs to hatch into butterflies.
-               Scoring guidelines: 
-               - This question has a maximum of 1 marks.
-               - The two key points, of which each point is worth 0.5 marks, are: "increasing chances of some eggs hatching into young" and "ensuring the continuity of their kind".
-                - The student's answer only covers the first key point, so award 0.5 marks.
+                ##Example 1:
+                Question: There is an image showing many butterfly eggs laid on the leaf. Explain how laying many eggs each time helps the butterfly in their survival.
+                Model answer: To increase the chances of some eggs hatching into young which will develop into adults that can reproduce to ensure the continuity of their kind.
+                Maximum marks: 1
+                Student's answer: To have more chances for the eggs to hatch into butterflies.
+
+                Scoring guidelines:
+                - Break the model answer into two equally-important key points (each worth 0.5 marks):
+                1) “increasing the chances of eggs hatching into young,”
+                2) “ensure continuity of their kind (reproduce).”
+                - The student only covered the first key point about increasing chances of hatching.
+                - Award 0.5 marks. 
                 - Score: 0.5 marks
 
                 ##Example 2:
-                Question: There is an image showing how an electircal circuit can be opened and closed through the closing and opening of a door respectively, and thus ringing a bell. Explain how the bell would ring when Peter pushed the door open.
-                Model answer: When the door was opened, The copper strip attached to the door will touch the other copper strip to form a closed circuit.
+                Question: There is an image showing how an electrical circuit can be opened and closed through the closing and opening of a door respectively, and thus ringing a bell. Explain how the bell would ring when Peter pushed the door open.
+                Model answer: When the door was opened, the copper strip attached to the door will touch the other copper strip to form a closed circuit.
                 Maximum marks: 2
-                Student's answer: When the copper strip on the door touch the other copper strip, the circuit becomes a closed circuit and electric current can flow thorugh to ring the bell.
-                Scoring guidelines:
-                - This question has a maximum of 2 marks.
-                - There are 3 key points: "When the door was opened" which describes the required action to close the circuit. "The copper strip attached to the door will touch the other copper strip" which describes the closing of the circuit. "form a closed circuit" which describes the completion of the circuit, and where the phrase closed circuit is the key here.
-                - The student's answer did not mention the action of the door being opened, but covered the other two key points on the concept of a closed circuit.
-                - Delete 1 mark for the omission of the door being opened, and award 1 marks for the other two key points.
-                - Score: 1 mark
+                Student's answer: When the copper strip on the door touches the other copper strip, the circuit becomes a closed circuit and electric current can flow through to ring the bell.
 
-               """
+                Scoring guidelines:
+                - Identify key points. Let’s say we pick 2 key points each worth 1 mark:
+                1) “Door being opened triggers the contact” (the action of the door opening is key),
+                2) “Copper strip touches the other copper strip to form a closed circuit.”
+                - The student didn’t mention “door being opened,” but described the strips touching to form a closed circuit.
+                - Award 1 mark for the second key point, 0 marks for the missing mention of the door opening.
+                - Score: 1 mark
+                """
+            
+            # messages = f"""
+            #    You are an examiner grading elementary-level science exam responses. Your grading must strictly follow the given model answers and the specified scoring rules. Do not deviate from the model answers. 
+            #    Base all partial credit on how closely the student's response matches or aligns with these model answers.
+               
+            #    ###Question:
+            #    {original_question}
+               
+            #    ### Model Answer:
+            #    {model_answer}
+    
+            #    ### Student's Answer:
+            #    {user_answer}
+
+            #    ### Maximum marks for each question:
+            #    {marks}
+
+            #    ###Scoring Guidelines:
+            #    Each question has a maximum mark (e.g., 2 marks per question, or as specified).
+            #    Award marks in increments of 0.5 marks for questions will a maximum of 1 mark. For questions with a maximum of 2 marks, award marks in increments of 1 mark.
+            #    Only award full marks if the response matches the model answer closely in both content and scientific accuracy. The model answer is the source of truth. Do not assume answers on your own.
+            #    If the response is partially correct, award partial marks in increments of 0.5 or 1. 
+            #    If the student’s response includes extraneous, incorrect, or misleading information that contradicts the model answer, reduce marks accordingly.
+            #    Student's response has to be very precise in the use of scientific terms. For example, mentioning "air" to indicate "water vapour in the air" is incorrect. Penalize marks for such errors.
+            #    Penalize wrong scientific terms or concepts. For example, "the temperature of water gains heat..." is incorrect because temperature is not a substance that can gain heat. It should be "the water gains heat...". Always award 0 marks for the answer if the scientific terms or concepts are wrong, even if other parts of the answers are correct. Since this is a science exam, scientific accuracy in terms and concepts is paramount.
+            #    Always expect an explicit answer, and the marker should not infer or assume any information that is not explicitly stated in the student's response. For example, "oxygen is carried through the body" is incorrect if the student did not mention "blood" as the carrier. Do not attempt to read between the lines and accept imprecise or incomplete sentences. Penalize marks for such errors.
+            #    Take note of the subject and object in the model answer. For example, "the sun heats the earth" is different from "the earth heats the sun". Penalize marks for such errors.
+            #    Take note of the subect and the verb in the model answer. For example, "the sun heats the earth" is different from "the sun cools the earth". Penalize marks for such errors.
+            #    Only give full marks if the student's response is complete, accurate, precise and scientfically correct. If the student's response is incomplete, award partial marks based on the completeness and accuracy of the response.
+            #    Be a strict marker! If you feel the answer is imprecise, NEVER give full marks! If the answer is correct but imprecise, award partial marks based on the correctness of the answer.
+            #    Be a strict marker! If essential concepts or information are missing, award 0 marks. Do NOT award partial marks for missing essential information.
+
+            #    ### Instructions:
+            #    For each question, consider the marks given to the student's answer in a step-by-step manner.
+            #    Understand the question, and determine what the student's answer should contain. The answer should be precise and directly anwering the question. 
+            #    First, look at the model answer and the maximum marks for the question.
+            #    Second, determine the key points in the model answer and decide how many marks to award for each point. For example, for a question with 2 key points of roughly equal importance, assign 0.5 marks to each. Another example - for a question that has 2 entities/phrases in the model answer, assign 0.5 marks to each. For questions with maximum marks of 1, ONLY assign 0.5 or 1. For questions with maximum marks of 2, ONLY assign 1 or 2.
+            #    In determining the key points, do take note of key scientific terms and descriptions, or certain actions that are given in the model answer. Be very precise in the concepts and scientific terms. For example, air is not the same as water vapour, and vice versa.
+            #    Third, compare the student's answer to the model answer, and award marks for the question in standard format like 'Score: 2 marks'. Ensure you provide the final marks for each question in the standard format. You should award marks based on the completeness and clarity of the student's answer compared to the model answer. The marks assgined MUST be equal or lower than the maximum marks for the question.
+            #    Fourth, do not penalize for spelling or grammatical errors. Only consider the scientific accuracy and completeness of the answer. It is important that the student uses the right words to capture the correct scientific concept.
+            #    Fifth, provide short and concise feedback ONLY if answer is wrong or partially right.
+
+            #     ###Examples on how to award marks:
+
+            #    ##Example 1:
+            #    Question: There is an image showing many butterfly eggs laid on the egg. Explain how laying many eggs each time helps the butterfly in their survival.
+            #    Model answer: To increase the chances of some eggs hatching into young which will develop into adults that can reproduce to ensure the continuity of their kind.
+            #    Maximum marks: 1
+            #    Student's answer: To have more chances for the eggs to hatch into butterflies.
+            #    Scoring guidelines: 
+            #    - This question has a maximum of 1 marks.
+            #    - The two key points, of which each point is worth 0.5 marks, are: "increasing chances of some eggs hatching into young" and "ensuring the continuity of their kind".
+            #     - The student's answer only covers the first key point, so award 0.5 marks.
+            #     - Score: 0.5 marks
+
+            #     ##Example 2:
+            #     Question: There is an image showing how an electircal circuit can be opened and closed through the closing and opening of a door respectively, and thus ringing a bell. Explain how the bell would ring when Peter pushed the door open.
+            #     Model answer: When the door was opened, The copper strip attached to the door will touch the other copper strip to form a closed circuit.
+            #     Maximum marks: 2
+            #     Student's answer: When the copper strip on the door touch the other copper strip, the circuit becomes a closed circuit and electric current can flow thorugh to ring the bell.
+            #     Scoring guidelines:
+            #     - This question has a maximum of 2 marks.
+            #     - There are 3 key points: "When the door was opened" which describes the required action to close the circuit. "The copper strip attached to the door will touch the other copper strip" which describes the closing of the circuit. "form a closed circuit" which describes the completion of the circuit, and where the phrase closed circuit is the key here.
+            #     - The student's answer did not mention the action of the door being opened, but covered the other two key points on the concept of a closed circuit.
+            #     - Delete 1 mark for the omission of the door being opened, and award 1 marks for the other two key points.
+            #     - Score: 1 mark
+
+            #    """
 
             grading_result = client.chat.completions.create(
                                 model="gpt-4o",
