@@ -200,89 +200,71 @@ def retrieve_and_grade_multiple_questions(paper, qa_df):
 
         else:
             messages = f"""
-                    You are an examiner grading elementary-level science exam responses. Your grading must strictly follow the given model answers and the specified scoring rules. 
-                    **Be conservative** when awarding marks: if the student misses any essential part of the model answer or uses incorrect scientific terms, marks **must** be heavily penalized or set to 0. 
-                    **Do not be lenient** in awarding partial marks.
+                You are an examiner grading elementary-level science exam responses. Your job is to be very strict in awarding marks based on how precisely each student's answer matches the provided model answer and scientific accuracy.
 
-                    ### Question:
-                    {original_question}
+                ### Question:
+                {original_question}
 
-                    ### Model Answer:
-                    {model_answer}
+                ### Model Answer:
+                {model_answer}
 
-                    ### Student's Answer:
-                    {user_answer}
+                ### Student's Answer:
+                {user_answer}
 
-                    ### Maximum marks for each question:
-                    {marks}
+                ### Maximum Marks:
+                {marks}
 
-                    ### Scoring Guidelines:
+                ---
+                # Step-by-step Marking Instructions
 
-                    1. **Strictly Follow the Model Answer**  
-                    - The model answer is the **sole source of truth**. 
-                    - Only award marks for key points **explicitly** present in the student's answer that directly match the model answer.
-                    - **Do not infer** or assume meaning that the student did not explicitly state.
+                1. **Identify Essential Key Points:**
+                - Begin by breaking down the **model answer** into specific, essential key points. Each key point represents a distinct piece of scientific content or terminology that the student must mention correctly.
+                - Assign each key point a specific fraction of the total marks. For example:
+                    - If this question is worth 1 mark, split the model answer into 2 points (each 0.5) or 1 single point (1.0) — but only if there is genuinely just one essential fact. 
+                    - If the question is worth 2 marks, either split into 2 points (1 mark each) or 4 points (0.5 marks each).
 
-                    2. **Identify Essential Key Points**  
-                    - First, break down the model answer into essential key points. Each key point should correspond to a necessary piece of information or a correct scientific concept.
-                    - Distribute the maximum marks across these key points.  
-                        - If maximum marks = 1, typically break into 2 key points, each worth 0.5 marks (unless the entire model answer is truly just 1 single concept).  
-                        - If maximum marks = 2, break into either 2 key points (each worth 1 mark) or 4 key points (each worth 0.5), whichever best reflects the model answer’s structure.  
-                    - **Essential** key points are those that if missing or incorrect, the student’s answer does **not** reflect the model answer. For essential points, do **not** grant partial credit if they are absent or contradicted.
+                2. **Compare the Student's Answer to Each Key Point:**
+                - For each key point identified in Step 1, check if the student explicitly states it with correct terminology and correct scientific relationships.
+                - If the student **omits** or **misstates** a key point, the student **earns zero** for that point.
+                - If the student mentions the key point in a scientifically accurate way, award the full mark allocated to that point.
 
-                    3. **Scientific Accuracy & Terminology**  
-                    - If a student misuses essential scientific terms or inverts crucial relationships (e.g., “the sun cools the earth” instead of “the sun heats the earth”), **award 0 marks** for that key point.  
-                    - If the entire answer is fundamentally incorrect in terminology or logic, the total score can be 0 even if some aspects appear correct.
+                3. **Penalize Missing Essentials and Vague Answers:**
+                - **If any essential concept is missing, or if the student’s language is vague** (e.g., they do not mention “anther” or the correct flower type if these are explicitly required by the model answer), **deduct that point’s mark** (which could lead to awarding 0 if all essential points are missing).
+                - If the student’s answer is fundamentally contradictory (e.g., uses wrong scientific terms), the entire answer may merit 0.
 
-                    4. **Penalizing Missing or Partial Coverage**  
-                    - **Be a strict marker**: If the student fails to mention **any** essential point from the model answer, do **not** award that key point’s marks.  
-                    - If a question is worth 1 mark and the student only partially covers the essential points, default to 0.5 marks **only** if they cover at least one entire key concept accurately.  
-                    - If you are uncertain whether the student has addressed a point sufficiently, **err on the side of awarding fewer marks**. 
+                4. **No Inference or Leniency:**
+                - Do not infer that the student “understands” if they didn’t explicitly state the required details.
+                - If you are in doubt whether the student's answer covers a key point precisely, **award fewer marks** (err on the side of strictness).
+                - If the question requires mention of an “anther” and “the same type of flower” for full marks, do not give those marks unless these terms are explicitly mentioned correctly. 
 
-                    5. **Contradictory or Extra Incorrect Information**  
-                    - If the student includes statements that contradict the model answer or fundamental scientific principles, **heavily penalize** or set the score for that key point to 0. 
-                    - If contradictions exist in essential points, this can bring the entire answer’s score down to 0.
+                5. **Scientific Accuracy Over Grammar:**
+                - Only penalize scientific inaccuracies and missing essential points. Do not penalize grammar or spelling unless it alters scientific meaning.
 
-                    6. **No Inference**  
-                    - Do not assume the student “meant” something if it is not explicitly stated. 
-                    - If the student’s language is vague or incomplete regarding a key point, **award 0** for that point.
+                6. **Final Output – Step-by-Step and Score:**
+                - Provide a **step-by-step** breakdown showing how each key point was awarded or denied marks.
+                - End with “Score: X mark(s)” (ensuring X ≤ the maximum marks).
+                - If the answer is not fully correct, provide a concise explanation of which key points were missing or incorrect.
 
-                    7. **Spelling & Grammar**  
-                    - Ignore spelling or minor grammatical errors **unless** they cause misunderstanding of a scientific concept. Scientific precision in terms is more important than perfect grammar.
+                ---
+                # Example of Strictness
 
-                    8. **Format & Output**  
-                    - Provide a short step-by-step breakdown of how you awarded (or deducted) marks for each key point.  
-                    - End with the final score: “Score: X mark(s)”.  
-                    - If the answer is partially or entirely incorrect, provide a **brief** note on which key points are missing or incorrect. Keep feedback short.
+                **Model Answer:** Pollination in flowering plants requires transfer of pollen from the anther of a flower to the stigma of the same species.  
+                **Maximum Marks:** 1  
 
-                    ### Marking Steps:
+                - *Essential Key Points (each 0.5 marks):*
+                1) Mention of pollen being transferred from anther to stigma.  
+                2) Emphasizing it’s the same type/species of flower (or correct mention of the same species).  
 
-                    **Step 1**: Identify the maximum marks and **carefully** divide the model answer into essential key points.  
-                    **Step 2**: Compare each key point to the student’s response.  
-                    - If the key point is addressed **completely and correctly**, award the full mark for that key point.  
-                    - If partially addressed (missing crucial words or lacking the correct scientific terms), award **0** or **0.5** (for 1-mark questions) only if the student states something clearly correct about that key point; otherwise 0.  
-                    - If contradictory or essential info is missing, award 0 for that point.  
-                    **Step 3**: Sum up the marks across key points, not exceeding the maximum marks.  
-                    **Step 4**: Provide final marks in the format “Score: X mark(s).”  
-                    - If less than full marks, give **concise** feedback specifying the missing or incorrect key points.  
-                    - **Be conservative**: if in doubt, **give fewer marks**.
+                **Student Answer Example**: “Pollen moves from one flower to another.”  
+                - This might only capture the notion of pollen transfer but fails to specify “anther” or “the same species.”  
+                - Award 0.5 marks if it mentions “anther to stigma” clearly, but 0 if it omits the same-species concept (assuming both are essential).  
+                - If both essential points are missing, 0 marks.
 
-                    ### Examples of Stricter Interpretation
+                ---
 
-                    1) **Example** (1 mark total):  
-                    - Model answer has 2 essential concepts, each worth 0.5 marks.  
-                    - If the student only mentions one concept correctly (with correct terminology), award 0.5.  
-                    - If they also misuse terms or omit an essential concept, remain at 0 or 0.5.  
-                    - Only if **both** essential concepts are correct do they get 1.  
+                Please follow these instructions strictly. Begin now by identifying the key points from the **model answer** and then carefully awarding marks based on whether the student explicitly addresses each point.
 
-                    2) **Example** (2 marks total):  
-                    - Break the model answer into either 2 or 4 points.  
-                    - If any essential point is missing or incorrectly stated, that portion’s marks are 0.  
-                    - If more than half the crucial information is missing or contradictory, the total can easily drop to 1 or 0 out of 2.  
-
-                    Remember: **Err on the side of strictness.** If the student is missing any essential aspect from the model answer, do not award the maximum possible marks.
-
-                    """
+                """
             
             # messages = f"""
             #    You are an examiner grading elementary-level science exam responses. Your grading must strictly follow the given model answers and the specified scoring rules. Do not deviate from the model answers. 
