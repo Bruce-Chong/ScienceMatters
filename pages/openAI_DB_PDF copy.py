@@ -233,29 +233,35 @@ def retrieve_and_grade_multiple_questions(paper, qa_df):
                 - **Explicit**: The key point is stated clearly with the correct terms.
                 - **Complete**: No essential details are missing.
 
-                #### Scoring Criteria for Each Key Point:
+                #### 3. Scoring Criteria for Each Key Point:
                 - **Full Marks**: Award the full mark for a key point if it is **completely accurate and explicitly stated**.
                 - **Partial Marks (0.5)**: Only award partial marks if the key point is **mostly correct but lacks precision**.
                 - **Zero Marks**: Award 0 if the key point is:
                 - Missing.
                 - Vague or incomplete.
                 - Scientifically incorrect.
+                - Award 0 if the **explanation is inaccurate or irrelevant**, even if other parts are correct.
 
                 ---
 
-                ### 3. No Assumptions or Inferences:
+                ### 4. No Assumptions or Inferences:
                 - **Do not infer** what the student "meant" to say.  
                 - If the required detail is missing or unclear, award **0 marks** for that key point.
+                - If you think the student is inferring a point, **do not award marks** unless it is explicitly stated.
 
                 ---
+                ### 5. Questions with multiple answers:
+                - If the question is asking for only one answer, **award full marks** as long as the student provides one of the correct answers. This will be mentioned in the model answer under "Comments for markers".
+                - If the question requires multiple answers, **award marks** for each correct answer provided by the student.
+                ---
 
-                ### 4. Total Score Calculation:
+                ### 6. Total Score Calculation:
                 - Sum the marks for each key point.
                 - The final score must be formatted as: **`Score: X mark(s)`**, where X is a number in increments of 0.5 (e.g., 0, 0.5, 1, 1.5).
 
                 ---
 
-                ### 5. Feedback Guidelines:
+                ### 7. Feedback Guidelines:
                 - Provide concise feedback explaining why marks were deducted, focusing on missing, vague, or incorrect key points.
                 - Avoid using phrases like **“none marks”**.
 
