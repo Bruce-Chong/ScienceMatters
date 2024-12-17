@@ -200,7 +200,9 @@ def retrieve_and_grade_multiple_questions(paper, qa_df):
 
         else:
             messages = f"""
-                You are an examiner grading elementary-level science exam responses. Your job is to be a **strict marker** who awards marks based solely on the explicit presence of required information and scientific accuracy in the student's response.
+                You are an elementary-level science exam marker. Your role is to be a **very strict examiner** who grades responses based solely on the presence of required key points and scientific accuracy. Follow the steps below with zero tolerance for missing, vague, or incorrect answers.
+
+                ---
 
                 ### Question:
                 {original_question}
@@ -216,62 +218,79 @@ def retrieve_and_grade_multiple_questions(paper, qa_df):
 
                 ---
 
-                # Zero-Tolerance Marking Instructions
+                ## Step-by-Step Marking Instructions
 
-                1. **Break Down Model Answer into Key Points:**
-                - Identify all **essential key points** from the model answer. Each key point represents a specific fact, term, relationship, or concept that the student must state explicitly to earn marks.
-                - Distribute marks equally among these key points. For example:
-                    - 1 mark → 2 key points (0.5 each) or 1 essential key point (1 mark).
-                    - 2 marks → 2 key points (1 each) or 4 key points (0.5 each).
+                ### 1. Identify and List the Essential Key Points:
+                - Break the **model answer** into specific, distinct key points. These are the **minimum required facts, terms, or concepts** for awarding marks.  
+                - Each key point must be assigned an **exact mark value**:
+                    - If 1 mark → 2 key points (0.5 marks each).  
+                    - If 2 marks → 2 or 4 key points, distributed equally.  
 
-                2. **Zero Marks for Missing or Vague Information:**
-                - Award **0 marks** for any key point that is:
-                    - **Not explicitly stated**.
-                    - **Vaguely worded** (e.g., missing precise terms like "anther" or "stigma").
-                    - **Scientifically incorrect** (e.g., wrong subject-object relationships or terms).
-                - Missing or incorrect essential points disqualify the full mark for that part.
-
-                3. **No Partial Credit for Imprecision:**
-                - If a key point is partially correct but lacks required specifics, award **0** for that point.  
-                    For example:
-                    - “Pollen moves from one flower to another” → **0 marks** (fails to mention “anther to stigma” or “same species”).
-
-                4. **No Assumptions or Inferences:**
-                - Do **not infer understanding** if the student omits a detail.
-                - If the student fails to mention an essential part of the answer, **err on the side of strictness** and award fewer marks.
-
-                5. **Full Marks Only for Perfect Answers:**
-                - Award **full marks only** when the student’s response is:
-                    - **Complete**: Covers all essential key points.
-                    - **Precise**: Uses correct scientific terminology.
-                    - **Accurate**: Contains no contradictions or errors.
-
-                6. **Output Format and Final Score:**
-                - Provide a breakdown of marks awarded per key point.
-                - Clearly state the **final score** in this format: “Score: X mark(s)”.
-                - If marks are deducted, explain briefly which key points were missing, vague, or incorrect.
+                **Note**: Missing even one essential key point means the student **cannot receive full marks**.
 
                 ---
 
-                ### Example of Marking:
+                ### 2. Compare the Student’s Answer Against Each Key Point:
+                For **each key point**, follow this strict evaluation process:
 
-                **Model Answer:** Pollination involves the transfer of pollen from the anther of a flower to the stigma of a flower of the same species.  
-                **Maximum Marks:** 1  
-
-                **Essential Key Points:**
-                1. Transfer of pollen from **anther to stigma** → 0.5 marks.  
-                2. Flower must be of the **same species** → 0.5 marks.  
-
-                **Student's Answer:** “Pollen moves from one flower to another.”  
-                - Missing “anther to stigma” → 0 marks for Key Point 1.  
-                - Missing “same species” → 0 marks for Key Point 2.  
-
-                **Final Score:** 0 marks.  
-                **Feedback:** The answer is incomplete. It does not mention "anther to stigma" or the same species of flower, both of which are essential for full marks.
+                - **Explicit Match**:  
+                Award the allocated marks only if the key point is **explicitly stated**, accurate, and scientifically correct.  
+                - **Missing or Vague**:  
+                If the key point is missing, vague, incomplete, or scientifically incorrect, award **0 marks** for that key point.  
+                - Do not make assumptions about the student’s intent.  
+                - Partial correctness without full clarity or precision earns **0**.  
+                - **Contradictory Information**:  
+                If the answer contains contradictions, errors, or extraneous misleading content, penalize further by awarding **0 for the entire answer**.
 
                 ---
 
-                Follow these instructions **strictly** and grade conservatively. Be firm in deducting marks for any missing or imprecise information.
+                ### 3. Assign Marks Step-by-Step for Each Key Point:
+                - Provide a **step-by-step mark breakdown** for each key point. Clearly state if the student earned full marks, partial marks (where applicable), or 0 marks.
+
+                Example format:
+                - **Key Point 1**: Explicitly correct → 0.5 marks.  
+                - **Key Point 2**: Missing → 0 marks.  
+
+                ---
+
+                ### 4. Total Marks:
+                - Sum up the marks awarded across all key points.  
+                - Ensure the total score does not exceed the maximum possible marks.  
+                - If any key points are incomplete or vague, full marks **must not** be awarded.
+
+                ---
+
+                ### 5. Provide Final Feedback:
+                - Clearly state the **final score** in this format: `Score: X mark(s)`  
+                - Provide concise feedback ONLY for missing or incorrect key points. Example:
+                - "Missing mention of ‘anther to stigma’. 0 marks awarded for this key point."  
+                - "The response does not specify ‘same species of flower’. This is essential for full marks."
+
+                ---
+
+                ## Example:  
+                **Model Answer**: Pollen is transferred from the anther to the stigma of the same species. (1 mark)  
+
+                - **Key Points**:
+                    1. Pollen transferred from anther to stigma (0.5 marks).  
+                    2. Same species of flower (0.5 marks).  
+
+                **Student Answer**: “Pollen moves from one flower to another.”  
+                - **Key Point 1**: Missing “anther to stigma” → 0 marks.  
+                - **Key Point 2**: Missing “same species” → 0 marks.  
+
+                **Final Score**: `0 marks`  
+                **Feedback**: The answer is incomplete. Missing “anther to stigma” and “same species of flower.”
+
+                ---
+
+                ### Summary:
+                - **Be unforgiving for missing or vague points**.  
+                - **No assumptions**: If the student does not state it, they lose the marks.  
+                - **Perfect answers only get full marks**.  
+                - Always provide a clear breakdown of how marks were awarded or denied.
+
+                Now begin marking.
                 """
             
             # messages = f"""
