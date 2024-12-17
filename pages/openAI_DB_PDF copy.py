@@ -127,6 +127,25 @@ def superbase_fetch(paper):
 
     return response.data
 
+# New Function to call GPT-4o to analyze feedback
+def analyze_feedback_with_gpt(feedback):
+    prompt = f"Determine if the following feedback contains any non-positive or critical comments. For example, However, the explanation is incorrect, or But the answer could be more accurate, or anything that has the same meaning. If it does, respond with 'YES'. If it does not, respond with 'NO'.\n\nFeedback: {feedback}"
+    
+    # Call GPT-4o API (you need to set up the OpenAI API key)
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {"role": "system", "content": "You are an assistant that identifies non-positive feedback."},
+            {"role": "user", "content": prompt}
+        ],
+        max_tokens=500
+        temperature=0
+    )
+
+    # Extract GPT-4o's response
+    gpt_response = response.choices[0].message.content
+    return gpt_response.upper() == "YES"
+
 def update_results(res, grade,packed_ans, rect):
     # Use regex to parse out the awarded marks and feedback
     mark_match = re.search(r"Score:\s*(\d+(\.\d+)?)", grade)   #changed regex to capture decimal places
@@ -144,6 +163,17 @@ def update_results(res, grade,packed_ans, rect):
 
     packed_ans.grading_result = feedback,
     packed_ans.gmarks = marks_awarded
+
+    # New code to call GPT-4o and reduce marks if necessary
+    if marks_awarded > 0:
+        try:
+            is_non_positive = analyze_feedback_with_gpt(feedback)
+            if is_non_positive:
+                marks_awarded = max(marks_awarded - 0.5, 0)  # Ensure marks don't go below 0
+                packed_ans.gmarks = marks_awarded
+                packed_ans.grading_result = f"{feedback} (Updated Score: {marks_awarded} marks)"
+        except Exception as e:
+            print(f"Error analyzing feedback with GPT-4o: {e}")
 
     add_question(packed_ans, rect)
 
