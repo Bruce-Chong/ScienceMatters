@@ -461,6 +461,9 @@ if st.session_state.authenticated:
             # Step 2: Extract answer
             retrieve_and_grade_multiple_questions(paper_title, question_answer_pairs)
 
+            # new line of code to display the results - change the marks which is float back to string for display
+            mark_df['grade'] = mark_df['grade'].fillna('').apply(lambda x: ' '.join(x) if isinstance(x, list) else str(x))
+            
             st.dataframe(mark_df)
             #read_file.seek(0)
             #annotate_pdf(read_file, mark_df)
