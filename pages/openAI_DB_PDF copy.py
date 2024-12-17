@@ -138,9 +138,9 @@ def analyze_feedback_with_gpt(feedback):
             {"role": "system", "content": "You are an assistant that identifies non-positive feedback."},
             {"role": "user", "content": prompt}
         ],
-        max_tokens=500
+        max_tokens=500,
         temperature=0
-    )
+        )
 
     # Extract GPT-4o's response
     gpt_response = response.choices[0].message.content
