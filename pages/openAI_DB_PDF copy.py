@@ -272,6 +272,7 @@ def retrieve_and_grade_multiple_questions(paper, qa_df):
                 - Vague or incomplete.
                 - Scientifically incorrect.
                 - Award 0 if the **explanation is inaccurate or irrelevant**, even if other parts are correct.
+                - **Do not penalize** for spelling or grammatical errors.
 
                 ---
 
@@ -295,6 +296,7 @@ def retrieve_and_grade_multiple_questions(paper, qa_df):
                 ### 7. Feedback Guidelines:
                 - Provide concise feedback explaining why marks were deducted, focusing on missing, vague, or incorrect key points.
                 - Avoid using phrases like **“none marks”**.
+                - **Do not mention** any spelling or grammatical errors.
 
                 ---
 
