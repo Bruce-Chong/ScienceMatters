@@ -146,7 +146,7 @@ def analyze_feedback_with_gpt(feedback):
     gpt_response = response.choices[0].message.content
     return gpt_response.upper() == "YES"
 
-def update_results(res, grade,packed_ans, rect):
+def update_results(res, grade,packed_ans, rect, marks_max):
     # Use regex to parse out the awarded marks and feedback
     mark_match = re.search(r"Score:\s*(\d+(\.\d+)?)", grade)   #changed regex to capture decimal places
     marks_awarded = float(mark_match.group(1)) if mark_match else 0.0
@@ -166,7 +166,7 @@ def update_results(res, grade,packed_ans, rect):
     packed_ans.gmarks = marks_awarded
 
     # New code to call GPT-4o and reduce marks if necessary
-    if marks_awarded > 0:
+    if marks_awarded > 0 and marks_awarded == marks_max:
         try:
             is_non_positive = analyze_feedback_with_gpt(feedback)
             if is_non_positive:
@@ -402,7 +402,7 @@ def retrieve_and_grade_multiple_questions(paper, qa_df):
 
             grade = grading_result.choices[0].message.content
             packed_answer.grading_result = grade
-            results = update_results(results, grade, packed_answer, xrect)
+            results = update_results(results, grade, packed_answer, xrect, marks)
 
     #doc.close()
     return results
