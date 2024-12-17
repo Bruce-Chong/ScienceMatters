@@ -200,7 +200,7 @@ def retrieve_and_grade_multiple_questions(paper, qa_df):
 
         else:
             messages = f"""
-                You are an examiner grading elementary-level science exam responses. Your job is to be very strict in awarding marks based on how precisely each student's answer matches the provided model answer and scientific accuracy.
+                You are an examiner grading elementary-level science exam responses. Your job is to be a **strict marker** who awards marks based solely on the explicit presence of required information and scientific accuracy in the student's response.
 
                 ### Question:
                 {original_question}
@@ -215,55 +215,63 @@ def retrieve_and_grade_multiple_questions(paper, qa_df):
                 {marks}
 
                 ---
-                # Step-by-step Marking Instructions
 
-                1. **Identify Essential Key Points:**
-                - Begin by breaking down the **model answer** into specific, essential key points. Each key point represents a distinct piece of scientific content or terminology that the student must mention correctly.
-                - Assign each key point a specific fraction of the total marks. For example:
-                    - If this question is worth 1 mark, split the model answer into 2 points (each 0.5) or 1 single point (1.0) — but only if there is genuinely just one essential fact. 
-                    - If the question is worth 2 marks, either split into 2 points (1 mark each) or 4 points (0.5 marks each).
+                # Zero-Tolerance Marking Instructions
 
-                2. **Compare the Student's Answer to Each Key Point:**
-                - For each key point identified in Step 1, check if the student explicitly states it with correct terminology and correct scientific relationships.
-                - If the student **omits** or **misstates** a key point, the student **earns zero** for that point.
-                - If the student mentions the key point in a scientifically accurate way, award the full mark allocated to that point.
+                1. **Break Down Model Answer into Key Points:**
+                - Identify all **essential key points** from the model answer. Each key point represents a specific fact, term, relationship, or concept that the student must state explicitly to earn marks.
+                - Distribute marks equally among these key points. For example:
+                    - 1 mark → 2 key points (0.5 each) or 1 essential key point (1 mark).
+                    - 2 marks → 2 key points (1 each) or 4 key points (0.5 each).
 
-                3. **Penalize Missing Essentials and Vague Answers:**
-                - **If any essential concept is missing, or if the student’s language is vague** (e.g., they do not mention “anther” or the correct flower type if these are explicitly required by the model answer), **deduct that point’s mark** (which could lead to awarding 0 if all essential points are missing).
-                - If the student’s answer is fundamentally contradictory (e.g., uses wrong scientific terms), the entire answer may merit 0.
+                2. **Zero Marks for Missing or Vague Information:**
+                - Award **0 marks** for any key point that is:
+                    - **Not explicitly stated**.
+                    - **Vaguely worded** (e.g., missing precise terms like "anther" or "stigma").
+                    - **Scientifically incorrect** (e.g., wrong subject-object relationships or terms).
+                - Missing or incorrect essential points disqualify the full mark for that part.
 
-                4. **No Inference or Leniency:**
-                - Do not infer that the student “understands” if they didn’t explicitly state the required details.
-                - If you are in doubt whether the student's answer covers a key point precisely, **award fewer marks** (err on the side of strictness).
-                - If the question requires mention of an “anther” and “the same type of flower” for full marks, do not give those marks unless these terms are explicitly mentioned correctly. 
+                3. **No Partial Credit for Imprecision:**
+                - If a key point is partially correct but lacks required specifics, award **0** for that point.  
+                    For example:
+                    - “Pollen moves from one flower to another” → **0 marks** (fails to mention “anther to stigma” or “same species”).
 
-                5. **Scientific Accuracy Over Grammar:**
-                - Only penalize scientific inaccuracies and missing essential points. Do not penalize grammar or spelling unless it alters scientific meaning.
+                4. **No Assumptions or Inferences:**
+                - Do **not infer understanding** if the student omits a detail.
+                - If the student fails to mention an essential part of the answer, **err on the side of strictness** and award fewer marks.
 
-                6. **Final Output – Step-by-Step and Score:**
-                - Provide a **step-by-step** breakdown showing how each key point was awarded or denied marks.
-                - End with “Score: X mark(s)” (ensuring X ≤ the maximum marks).
-                - If the answer is not fully correct, provide a concise explanation of which key points were missing or incorrect.
+                5. **Full Marks Only for Perfect Answers:**
+                - Award **full marks only** when the student’s response is:
+                    - **Complete**: Covers all essential key points.
+                    - **Precise**: Uses correct scientific terminology.
+                    - **Accurate**: Contains no contradictions or errors.
+
+                6. **Output Format and Final Score:**
+                - Provide a breakdown of marks awarded per key point.
+                - Clearly state the **final score** in this format: “Score: X mark(s)”.
+                - If marks are deducted, explain briefly which key points were missing, vague, or incorrect.
 
                 ---
-                # Example of Strictness
 
-                **Model Answer:** Pollination in flowering plants requires transfer of pollen from the anther of a flower to the stigma of the same species.  
+                ### Example of Marking:
+
+                **Model Answer:** Pollination involves the transfer of pollen from the anther of a flower to the stigma of a flower of the same species.  
                 **Maximum Marks:** 1  
 
-                - *Essential Key Points (each 0.5 marks):*
-                1) Mention of pollen being transferred from anther to stigma.  
-                2) Emphasizing it’s the same type/species of flower (or correct mention of the same species).  
+                **Essential Key Points:**
+                1. Transfer of pollen from **anther to stigma** → 0.5 marks.  
+                2. Flower must be of the **same species** → 0.5 marks.  
 
-                **Student Answer Example**: “Pollen moves from one flower to another.”  
-                - This might only capture the notion of pollen transfer but fails to specify “anther” or “the same species.”  
-                - Award 0.5 marks if it mentions “anther to stigma” clearly, but 0 if it omits the same-species concept (assuming both are essential).  
-                - If both essential points are missing, 0 marks.
+                **Student's Answer:** “Pollen moves from one flower to another.”  
+                - Missing “anther to stigma” → 0 marks for Key Point 1.  
+                - Missing “same species” → 0 marks for Key Point 2.  
+
+                **Final Score:** 0 marks.  
+                **Feedback:** The answer is incomplete. It does not mention "anther to stigma" or the same species of flower, both of which are essential for full marks.
 
                 ---
 
-                Please follow these instructions strictly. Begin now by identifying the key points from the **model answer** and then carefully awarding marks based on whether the student explicitly addresses each point.
-
+                Follow these instructions **strictly** and grade conservatively. Be firm in deducting marks for any missing or imprecise information.
                 """
             
             # messages = f"""
