@@ -263,6 +263,7 @@ def retrieve_and_grade_multiple_questions(paper, qa_df):
                 - **Accurate**: The fact or concept is scientifically correct.
                 - **Explicit**: The key point is stated clearly with the correct terms.
                 - **Complete**: No essential details are missing.
+                - **Key words**: All the key words, that is all words except for pronouns and definite articles, in the model answer has to appear in the student's answer.
 
                 #### 3. Scoring Criteria for Each Key Point:
                 - **Full Marks**: Award the full mark for a key point if it is **completely accurate and explicitly stated**.
