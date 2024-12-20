@@ -204,16 +204,16 @@ def update_results(res, grade,packed_ans, rect, marks_max):
     packed_ans.grading_result = feedback,
     packed_ans.gmarks = marks_awarded
 
-    # New code to call GPT-4o and reduce marks if necessary
-    if marks_awarded > 0:
-        try:
-            is_non_positive = analyze_feedback_with_gpt(feedback)
-            if is_non_positive:
-                marks_awarded = max(marks_awarded - 0.5, 0)  # Ensure marks don't go below 0
-                packed_ans.gmarks = marks_awarded
-                packed_ans.grading_result = f"{feedback} (Updated Score: {marks_awarded} marks)"
-        except Exception as e:
-            print(f"Error analyzing feedback with GPT-4o: {e}")
+    # # New code to call GPT-4o and reduce marks if necessary
+    # if marks_awarded > 0:
+    #     try:
+    #         is_non_positive = analyze_feedback_with_gpt(feedback)
+    #         if is_non_positive:
+    #             marks_awarded = max(marks_awarded - 0.5, 0)  # Ensure marks don't go below 0
+    #             packed_ans.gmarks = marks_awarded
+    #             packed_ans.grading_result = f"{feedback} (Updated Score: {marks_awarded} marks)"
+    #     except Exception as e:
+    #         print(f"Error analyzing feedback with GPT-4o: {e}")
 
     add_question(packed_ans, rect)
 
