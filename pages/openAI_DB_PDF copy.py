@@ -171,7 +171,7 @@ def update_results(res, grade,packed_ans, rect, marks_max):
     packed_ans.gmarks = marks_awarded
 
     # New code to call GPT-4o and reduce marks if necessary
-    if marks_awarded > 0:
+    if marks_awarded == marks_max:
         try:
             is_non_positive = analyze_feedback_with_gpt(feedback)
             if is_non_positive:
