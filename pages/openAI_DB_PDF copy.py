@@ -133,37 +133,53 @@ def analyze_feedback_with_gpt(feedback, packed_answer):
     
     model_answer = packed_answer.model_answer
     user_answer = packed_answer.user_answer
+    marks_awarded = packed_answer.gmarks
+    max_marks = packed_answer.marks
 
-    prompt = f"""
-    You are an assistant tasked with reviewing AI-generated feedback for grading exam answers.
+    # prompt = f"""
+    # You are an assistant tasked with reviewing AI-generated feedback for grading exam answers.
 
-    Here is the feedback provided:
-    "{feedback}"
+    # Here is the feedback provided:
+    # "{feedback}"
 
-    The AI awarded the following marks: {marks_awarded} out of {max_marks}.
+    # The AI awarded the following marks: {marks_awarded} out of {max_marks}.
 
-    Review the feedback carefully and determine if the awarded marks are consistent with the feedback. 
-    If the feedback mentions missing details, incomplete explanations, or incorrect information, the awarded marks should reflect these issues.
+    # Review the feedback carefully and determine if the awarded marks are consistent with the feedback. 
+    # If the feedback mentions missing details, incomplete explanations, or incorrect information, the awarded marks should reflect these issues.
 
-    - If the marks are too high based on the feedback, suggest a lower mark.
-    - If the marks are correct, confirm that they are appropriate.
-    - Do not suggest marks higher than what was originally awarded.
+    # - If the marks are too high based on the feedback, suggest a lower mark.
+    # - If the marks are correct, confirm that they are appropriate.
+    # - Do not suggest marks higher than what was originally awarded.
 
-    Respond with:
-    1. "NO" if the marks are appropriate.
-    2. "YES" if marks should be reduced based on the feedback.
-    """
+    # Respond with:
+    # 1. "NO" if the marks are appropriate.
+    # 2. "YES" if marks should be reduced based on the feedback.
+    # """
 
-    # Call GPT-4o API (you need to set up the OpenAI API key)
-    response = client.chat.completions.create(
-        model="gpt-4o",
-        messages=[
-            {"role": "system", "content": "You are a strict and accurate grading reviewer."},  # previous system prompt => You are an assistant that identifies non-positive feedback.
-            {"role": "user", "content": prompt}
-        ],
-        max_tokens=500,
-        temperature=0
-        )
+    # # Call GPT-4o API (you need to set up the OpenAI API key)
+    # response = client.chat.completions.create(
+    #     model="gpt-4o",
+    #     messages=[
+    #         {"role": "system", "content": "You are a strict and accurate grading reviewer."},  # previous system prompt => You are an assistant that identifies non-positive feedback.
+    #         {"role": "user", "content": prompt}
+    #     ],
+    #     max_tokens=500,
+    #     temperature=0
+    #     )
+
+    # List of keywords indicating potential issues in the feedback
+    negative_keywords = [
+        "missing", "incomplete", "incorrect", "however", "but", "lack", "does not", "did not", "fails to", "vague"
+    ]
+
+    # Check if any negative keyword is in the feedback (case-insensitive)
+    feedback_lower = feedback.lower()
+    contains_negative = any(keyword in feedback_lower for keyword in negative_keywords)
+
+    # If full marks are awarded and negative keywords are present, reduce marks by 0.5
+    if marks_awarded == max_marks and contains_negative:
+        response = "YES"
+        return response
 
     # Extract GPT-4o's response
     gpt_response = response.choices[0].message.content
