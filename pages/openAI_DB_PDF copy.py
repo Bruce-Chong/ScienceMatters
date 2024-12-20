@@ -128,14 +128,19 @@ def superbase_fetch(paper):
     return response.data
 
 # New Function to call GPT-4o to analyze feedback
-def analyze_feedback_with_gpt(feedback):
-    prompt = f"Determine if the following feedback contains any non-positive or critical comments. For example, However, the explanation is incorrect, or But the answer could be more accurate, or anything that has the same meaning. If it does, respond with 'YES'. If it does not, respond with 'NO'.\n\nFeedback: {feedback}"
+def analyze_feedback_with_gpt(feedback, packed_answer):
+    # prompt = f"Determine if the following feedback contains any non-positive or critical comments. For example, However, the explanation is incorrect, or But the answer could be more accurate, or anything that has the same meaning. If it does, respond with 'YES'. If it does not, respond with 'NO'.\n\nFeedback: {feedback}"
+    
+    model_answer = packed_answer.model_answer
+    user_answer = packed_answer.user_answer
+
+    prompt = f"Determine if all the key words and phrases in the model answer are given in the student's answer. It is important that the student's answer contains all the key words used in the model answer. For example, if the model answer contains the phrase food stored in the seed leaves, and the student's answer is food in the seed leaves, it is incorrect because the word stored is not mention. You have to be very exact in the matching. If **all** the key words and phrases are given, respond with 'YES'. If not, respond with 'NO'.\n\nModel Answer: {model_answer}\n\nStudent's Answer: {user_answer}"
     
     # Call GPT-4o API (you need to set up the OpenAI API key)
     response = client.chat.completions.create(
         model="gpt-4o",
         messages=[
-            {"role": "system", "content": "You are an assistant that identifies non-positive feedback."},
+            {"role": "system", "content": "You are an assistant that identifies keyword."},  # previous system prompt => You are an assistant that identifies non-positive feedback.
             {"role": "user", "content": prompt}
         ],
         max_tokens=500,
