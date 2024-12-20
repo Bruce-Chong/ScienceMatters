@@ -178,12 +178,12 @@ def analyze_feedback_with_gpt(feedback, packed_answer):
 
     # If full marks are awarded and negative keywords are present, reduce marks by 0.5
     if marks_awarded == max_marks and contains_negative:
-        response = "YES"
-        return response
+        
+        return response == "YES"
 
-    # Extract GPT-4o's response
-    gpt_response = response.choices[0].message.content
-    return gpt_response.upper() == "YES"
+    # # Extract GPT-4o's response
+    # gpt_response = response.choices[0].message.content
+    # return gpt_response.upper() == "YES"
 
 def update_results(res, grade,packed_ans, rect, marks_max):
     # Use regex to parse out the awarded marks and feedback
