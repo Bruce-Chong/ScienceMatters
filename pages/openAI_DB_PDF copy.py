@@ -269,195 +269,99 @@ def retrieve_and_grade_multiple_questions(paper, qa_df):
             add_question(packed_answer, xrect)
 
         else:
+            
             messages = f"""
-                    You are a **strict examiner** grading elementary-level science exam responses. Your job is to **award marks solely** based on how explicitly the student's answer matches the model answer. Focus on **scientific accuracy** and **completeness**.
+                You are a strict examiner grading elementary-level science exam responses. Your job is to award marks based solely on the student's answer explicitly matching the model answer, with a focus on scientific accuracy and completeness.
 
-                    ### Question:
-                    {original_question}
+                ### Question:
+                {original_question}
 
-                    ### Model Answer:
-                    {model_answer}
+                ### Model Answer:
+                {model_answer}
 
-                    ### Student's Answer:
-                    {user_answer}
+                ### Student's Answer:
+                {user_answer}
 
-                    ### Maximum Marks:
-                    {marks}
+                ### Maximum Marks:
+                {marks}
 
-                    ---
+                ---
 
-                    ## Step-by-Step Marking Instructions
+                ## Step-by-Step Marking Instructions
 
-                    ### 1. Identify Essential Key Points:
-                    - Break the **model answer** into distinct, **essential key points**. These points are required for the answer to be complete and correct.
-                    - **Distribute marks equally** among these key points:
+                ### 1. Identify Essential Key Points:
+                - Break down the **model answer** into distinct, **essential key points**. These points are required for the answer to be complete and correct.
+                - **Distribute marks equally** among these key points:
                     - For a 1-mark question: 2 key points (0.5 marks each).
                     - For a 2-mark question: 2 key points (1 mark each) or 4 key points (0.5 marks each).
-                    - **Do not** assign marks smaller than 0.5.
+                - **Do not** assign marks smaller than 0.5.
 
-                    ---
+                ---
 
-                    ### 2. Evaluate the Student’s Answer:
-                    For each **key point**, check if the student’s answer is:
-                    - **Accurate**: The fact or concept is scientifically correct.
-                    - **Explicit**: The key point is stated clearly with the correct terms.
-                    - **Complete**: No essential details are missing.
-                    - **Key Words**: Ensure all significant words (nouns, verbs, and adjectives) in the model answer appear in the student’s answer.
+                ### 2. Evaluate the Student’s Answer:
+                - For each **key point**, check if the student’s answer is:
+                - **Accurate**: The fact or concept is scientifically correct.
+                - **Explicit**: The key point is stated clearly with the correct terms.
+                - **Complete**: No essential details are missing.
+                - **Key words**: All the key words, that is all words except for pronouns and definite articles, in the model answer has to appear in the student's answer.
 
-                    ---
+                #### 3. Scoring Criteria for Each Key Point:
+                - **Full Marks**: Award the full mark for a key point if it is **completely accurate and explicitly stated**.
+                - **Partial Marks (0.5)**: Only award partial marks if the key point is **mostly correct but lacks precision**.
+                - **Zero Marks**: Award 0 if the key point is:
+                - Missing.
+                - Vague or incomplete.
+                - Scientifically incorrect.
+                - Award 0 if the **explanation is inaccurate or irrelevant**, even if other parts are correct.
+                - **Do not penalize** for spelling or grammatical errors.
 
-                    ### 3. Scoring Criteria for Each Key Point:
-                    - **Full Marks**: Award full marks if the key point is **completely accurate and explicitly stated**.
-                    - **Partial Marks (0.5)**: Award partial marks if the key point is **mostly correct but lacks precision**.
-                    - **Zero Marks**: Award 0 marks if the key point is:
-                    - Missing.
-                    - Vague or incomplete.
-                    - Scientifically incorrect.
-                    - Contains inaccuracies or irrelevant explanations.
+                ---
 
-                    ---
+                ### 4. No Assumptions or Inferences:
+                - **Do not infer** what the student "meant" to say.  
+                - If the required detail is missing or unclear, award **0 marks** for that key point.
+                - If you think the student is inferring a point, **do not award marks** unless it is explicitly stated.
 
-                    ### 4. No Assumptions or Inferences:
-                    - **Do not infer** what the student "meant" to say.
-                    - Award **0 marks** if required details are missing or unclear.
-                    - If in doubt, **err on the side of strictness**.
+                ---
+                ### 5. Questions with multiple answers:
+                - If the question is asking for only one answer, **award full marks** as long as the student provides one of the correct answers. This will be mentioned in the model answer under "Comments for markers".
+                - If the question requires multiple answers, **award marks** for each correct answer provided by the student.
+                ---
 
-                    ---
+                ### 6. Total Score Calculation:
+                - Sum the marks for each key point.
+                - The final score must be formatted as: **`Score: X mark(s)`**, where X is a number in increments of 0.5 (e.g., 0, 0.5, 1, 1.5).
 
-                    ### 5. Self-Check Step:
-                    - After scoring, **review your feedback and awarded marks**.
-                    - Ensure your feedback explains the deducted marks clearly.
-                    - Confirm that the final score aligns with the feedback provided.
+                ---
 
-                    ---
+                ### 7. Feedback Guidelines:
+                - Provide concise feedback explaining why marks were deducted, focusing on missing, vague, or incorrect key points.
+                - Avoid using phrases like **“none marks”**.
+                - **Do not mention** any spelling or grammatical errors.
 
-                    ### 6. Total Score Calculation:
-                    - Sum the marks for each key point.
-                    - Format the final score as: **`Score: X mark(s)`**, where X is a number in increments of 0.5.
+                ---
 
-                    ---
+                ## Example Marking Process:
 
-                    ### 7. Feedback Guidelines:
-                    - Provide concise feedback explaining why marks were deducted.
-                    - Avoid using phrases like **“none marks”**.
-                    - **Do not mention** spelling or grammatical errors.
+                **Model Answer:** Pollination involves the transfer of pollen from the anther to the stigma of a flower of the same species. (1 mark)  
 
-                    ---
+                **Key Points** (0.5 marks each):  
+                1. Transfer of pollen from **anther to stigma**.  
+                2. From a flower of the **same species**.  
 
-                    ## Example Marking Process
+                **Student’s Answer:** “Pollen moves to the stigma.”  
 
-                    **Model Answer:** Pollination involves the transfer of pollen from the anther to the stigma of a flower of the same species. (1 mark)  
+                **Evaluation:**  
+                - **Key Point 1**: Missing “anther” → **0 marks**.  
+                - **Key Point 2**: Missing “same species” → **0 marks**.  
 
-                    **Key Points** (0.5 marks each):  
-                    1. Transfer of pollen from **anther to stigma**.  
-                    2. From a flower of the **same species**.  
+                **Final Score:** `Score: 0 marks`  
+                **Feedback:** Missing “anther” and “same species,” both essential for full marks.
 
-                    **Student’s Answer:** “Pollen moves to the stigma.”  
+                ---
 
-                    **Evaluation:**  
-                    - **Key Point 1**: Missing “anther” → **0 marks**.  
-                    - **Key Point 2**: Missing “same species” → **0 marks**.  
-
-                    **Final Score:** `Score: 0 marks`  
-                    **Feedback:** Missing “anther” and “same species,” both essential for full marks.
-
-                    ---
-
-                    Now, begin marking. Follow these instructions **strictly** and ensure consistency.
-                    """
-            
-            # messages = f"""
-            #     You are a strict examiner grading elementary-level science exam responses. Your job is to award marks based solely on the student's answer explicitly matching the model answer, with a focus on scientific accuracy and completeness.
-
-            #     ### Question:
-            #     {original_question}
-
-            #     ### Model Answer:
-            #     {model_answer}
-
-            #     ### Student's Answer:
-            #     {user_answer}
-
-            #     ### Maximum Marks:
-            #     {marks}
-
-            #     ---
-
-            #     ## Step-by-Step Marking Instructions
-
-            #     ### 1. Identify Essential Key Points:
-            #     - Break down the **model answer** into distinct, **essential key points**. These points are required for the answer to be complete and correct.
-            #     - **Distribute marks equally** among these key points:
-            #         - For a 1-mark question: 2 key points (0.5 marks each).
-            #         - For a 2-mark question: 2 key points (1 mark each) or 4 key points (0.5 marks each).
-            #     - **Do not** assign marks smaller than 0.5.
-
-            #     ---
-
-            #     ### 2. Evaluate the Student’s Answer:
-            #     - For each **key point**, check if the student’s answer is:
-            #     - **Accurate**: The fact or concept is scientifically correct.
-            #     - **Explicit**: The key point is stated clearly with the correct terms.
-            #     - **Complete**: No essential details are missing.
-            #     - **Key words**: All the key words, that is all words except for pronouns and definite articles, in the model answer has to appear in the student's answer.
-
-            #     #### 3. Scoring Criteria for Each Key Point:
-            #     - **Full Marks**: Award the full mark for a key point if it is **completely accurate and explicitly stated**.
-            #     - **Partial Marks (0.5)**: Only award partial marks if the key point is **mostly correct but lacks precision**.
-            #     - **Zero Marks**: Award 0 if the key point is:
-            #     - Missing.
-            #     - Vague or incomplete.
-            #     - Scientifically incorrect.
-            #     - Award 0 if the **explanation is inaccurate or irrelevant**, even if other parts are correct.
-            #     - **Do not penalize** for spelling or grammatical errors.
-
-            #     ---
-
-            #     ### 4. No Assumptions or Inferences:
-            #     - **Do not infer** what the student "meant" to say.  
-            #     - If the required detail is missing or unclear, award **0 marks** for that key point.
-            #     - If you think the student is inferring a point, **do not award marks** unless it is explicitly stated.
-
-            #     ---
-            #     ### 5. Questions with multiple answers:
-            #     - If the question is asking for only one answer, **award full marks** as long as the student provides one of the correct answers. This will be mentioned in the model answer under "Comments for markers".
-            #     - If the question requires multiple answers, **award marks** for each correct answer provided by the student.
-            #     ---
-
-            #     ### 6. Total Score Calculation:
-            #     - Sum the marks for each key point.
-            #     - The final score must be formatted as: **`Score: X mark(s)`**, where X is a number in increments of 0.5 (e.g., 0, 0.5, 1, 1.5).
-
-            #     ---
-
-            #     ### 7. Feedback Guidelines:
-            #     - Provide concise feedback explaining why marks were deducted, focusing on missing, vague, or incorrect key points.
-            #     - Avoid using phrases like **“none marks”**.
-            #     - **Do not mention** any spelling or grammatical errors.
-
-            #     ---
-
-            #     ## Example Marking Process:
-
-            #     **Model Answer:** Pollination involves the transfer of pollen from the anther to the stigma of a flower of the same species. (1 mark)  
-
-            #     **Key Points** (0.5 marks each):  
-            #     1. Transfer of pollen from **anther to stigma**.  
-            #     2. From a flower of the **same species**.  
-
-            #     **Student’s Answer:** “Pollen moves to the stigma.”  
-
-            #     **Evaluation:**  
-            #     - **Key Point 1**: Missing “anther” → **0 marks**.  
-            #     - **Key Point 2**: Missing “same species” → **0 marks**.  
-
-            #     **Final Score:** `Score: 0 marks`  
-            #     **Feedback:** Missing “anther” and “same species,” both essential for full marks.
-
-            #     ---
-
-            #     Now, begin marking.
-            #     """
+                Now, begin marking.
+                """
             # messages = f"""
             #    You are an examiner grading elementary-level science exam responses. Your grading must strictly follow the given model answers and the specified scoring rules. Do not deviate from the model answers. 
             #    Base all partial credit on how closely the student's response matches or aligns with these model answers.
