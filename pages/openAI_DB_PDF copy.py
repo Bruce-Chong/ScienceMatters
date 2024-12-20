@@ -134,13 +134,31 @@ def analyze_feedback_with_gpt(feedback, packed_answer):
     model_answer = packed_answer.model_answer
     user_answer = packed_answer.user_answer
 
-    prompt = f"Determine if all the key words and phrases in the model answer are given in the student's answer. It is important that the student's answer contains all the key words used in the model answer. For example, if the model answer contains the phrase food stored in the seed leaves, and the student's answer is food in the seed leaves, it is incorrect because the word stored is not mention. You have to be very exact in the matching. If **all** the key words and phrases are given, respond with 'YES'. If not, respond with 'NO'.\n\nModel Answer: {model_answer}\n\nStudent's Answer: {user_answer}"
-    
+    prompt = f"""
+    You are an assistant tasked with reviewing AI-generated feedback for grading exam answers.
+
+    Here is the feedback provided:
+    "{feedback}"
+
+    The AI awarded the following marks: {marks_awarded} out of {max_marks}.
+
+    Review the feedback carefully and determine if the awarded marks are consistent with the feedback. 
+    If the feedback mentions missing details, incomplete explanations, or incorrect information, the awarded marks should reflect these issues.
+
+    - If the marks are too high based on the feedback, suggest a lower mark.
+    - If the marks are correct, confirm that they are appropriate.
+    - Do not suggest marks higher than what was originally awarded.
+
+    Respond with:
+    1. "NO" if the marks are appropriate.
+    2. "YES" if marks should be reduced based on the feedback.
+    """
+
     # Call GPT-4o API (you need to set up the OpenAI API key)
     response = client.chat.completions.create(
         model="gpt-4o",
         messages=[
-            {"role": "system", "content": "You are an assistant that identifies keyword."},  # previous system prompt => You are an assistant that identifies non-positive feedback.
+            {"role": "system", "content": "You are a strict and accurate grading reviewer."},  # previous system prompt => You are an assistant that identifies non-positive feedback.
             {"role": "user", "content": prompt}
         ],
         max_tokens=500,
@@ -171,7 +189,7 @@ def update_results(res, grade,packed_ans, rect, marks_max):
     packed_ans.gmarks = marks_awarded
 
     # New code to call GPT-4o and reduce marks if necessary
-    if marks_awarded == marks_max:
+    if marks_awarded > 0:
         try:
             is_non_positive = analyze_feedback_with_gpt(feedback)
             if is_non_positive:
