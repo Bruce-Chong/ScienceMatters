@@ -269,6 +269,8 @@ def update_results(res, grade,packed_ans, rect, marks_max):
             # Analyze feedback using GPT-4o
             gpt_response = analyze_feedback_with_gpt(feedback, packed_ans)
 
+            st.write(f"Critique agent decision: {gpt_response} for question {packed_ans.question_number}")
+
             # Adjust marks based on GPT's response
             if gpt_response == "DECREASE":
                 marks_awarded = max(marks_awarded - 0.5, 0)  # Ensure marks don't go below 0
