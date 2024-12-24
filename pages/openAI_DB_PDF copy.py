@@ -131,59 +131,106 @@ def superbase_fetch(paper):
 def analyze_feedback_with_gpt(feedback, packed_answer):
     # prompt = f"Determine if the following feedback contains any non-positive or critical comments. For example, However, the explanation is incorrect, or But the answer could be more accurate, or anything that has the same meaning. If it does, respond with 'YES'. If it does not, respond with 'NO'.\n\nFeedback: {feedback}"
     
+    original_question = packed_answer.original_question
     model_answer = packed_answer.model_answer
     user_answer = packed_answer.user_answer
     marks_awarded = packed_answer.gmarks
     max_marks = packed_answer.marks
 
-    # prompt = f"""
-    # You are an assistant tasked with reviewing AI-generated feedback for grading exam answers.
+    prompt = f"""
+    You are a critique responsible for checking the accuracy of marking of elementary school science exam papers by an AI marker. You are to be fair and strict.
 
-    # Here is the feedback provided:
-    # "{feedback}"
+    Here is the feedback provided from the AI marker:
+    "{feedback}"
 
-    # The AI awarded the following marks: {marks_awarded} out of {max_marks}.
+    This feedback is in response to the student's answer to the following question:
+    Question: {original_question}
 
-    # Review the feedback carefully and determine if the awarded marks are consistent with the feedback. 
-    # If the feedback mentions missing details, incomplete explanations, or incorrect information, the awarded marks should reflect these issues.
+    This is the Model Answer: {model_answer}
 
-    # - If the marks are too high based on the feedback, suggest a lower mark.
-    # - If the marks are correct, confirm that they are appropriate.
-    # - Do not suggest marks higher than what was originally awarded.
+    This is the Student's Answer: {user_answer}
 
-    # Respond with:
-    # 1. "NO" if the marks are appropriate.
-    # 2. "YES" if marks should be reduced based on the feedback.
-    # """
+    The AI marker awarded the following marks: {marks_awarded} out of {max_marks}.
 
-    # # Call GPT-4o API (you need to set up the OpenAI API key)
-    # response = client.chat.completions.create(
-    #     model="gpt-4o",
-    #     messages=[
-    #         {"role": "system", "content": "You are a strict and accurate grading reviewer."},  # previous system prompt => You are an assistant that identifies non-positive feedback.
-    #         {"role": "user", "content": prompt}
-    #     ],
-    #     max_tokens=500,
-    #     temperature=0
-    #     )
+    Review the feedback, together with all other information available here, carefully and determine if the awarded marks are consistent with the feedback and model answer. 
+    
+    ## Step-by-Step Marking Instructions
 
-    # List of keywords indicating potential issues in the feedback
-    negative_keywords = [
-        "missing", "incomplete", "incorrect", "however", "but", "lack", "does not", "did not", "fails to", "vague"
-    ]
+                ### 1. Identify Essential Key Points:
+                - Break down the **model answer** into distinct, **essential key points**. These points are required for the answer to be complete and correct.
+                - **Distribute marks equally** among these key points:
+                    - For a 1-mark question: 2 key points (0.5 marks each).
+                    - For a 2-mark question: 2 key points (1 mark each) or 4 key points (0.5 marks each).
+                - **Do not** assign marks smaller than 0.5.
 
-    # Check if any negative keyword is in the feedback (case-insensitive)
-    feedback_lower = feedback.lower()
-    contains_negative = any(keyword in feedback_lower for keyword in negative_keywords)
+                ---
 
-    # If full marks are awarded and negative keywords are present, reduce marks by 0.5
-    if marks_awarded == max_marks and contains_negative:
-        
-        return response == "YES"
+                ### 2. Evaluate the Student’s Answer:
+                - For each **key point**, check if the student’s answer is:
+                - **Accurate**: The fact or concept is scientifically correct.
+                - **Explicit**: The key point is stated clearly with the correct terms.
+                - **Complete**: No essential details are missing.
+                - **Key words**: All the key words, that is all words except for pronouns and definite articles, in the model answer has to appear in the student's answer.
 
-    # # Extract GPT-4o's response
-    # gpt_response = response.choices[0].message.content
-    # return gpt_response.upper() == "YES"
+                #### 3. Scoring Criteria for Each Key Point:
+                - **Full Marks**: Award the full mark for a key point if it is **completely accurate and explicitly stated**.
+                - **Partial Marks (0.5)**: Only award partial marks if the key point is **mostly correct but lacks precision**.
+                - **Zero Marks**: Award 0 if the key point is:
+                - Missing.
+                - Vague or incomplete.
+                - Scientifically incorrect.
+                - Award 0 if the **explanation is inaccurate or irrelevant**, even if other parts are correct.
+                - **Do not penalize** for spelling or grammatical errors.
+
+                ---
+
+                ### 4. No Assumptions or Inferences:
+                - **Do not infer** what the student "meant" to say.  
+                - If the required detail is missing or unclear, award **0 marks** for that key point.
+                - If you think the student is inferring a point, **do not award marks** unless it is explicitly stated.
+
+                ---
+                ### 5. Questions with multiple answers:
+                - If the question is asking for only one answer, **award full marks** as long as the student provides one of the correct answers. This will be mentioned in the model answer under "Comments for markers".
+                - If the question requires multiple answers, **award marks** for each correct answer provided by the student.
+                ---
+
+                ### 6. Total Score Calculation:
+                - Sum the marks for each key point.
+                - The final score must be formatted as: **`Score: X mark(s)`**, where X is a number in increments of 0.5 (e.g., 0, 0.5, 1, 1.5).
+
+                ---
+
+                ### 7. Feedback Guidelines:
+                - Provide concise feedback explaining why marks were deducted, focusing on missing, vague, or incorrect key points.
+                - Avoid using phrases like **“none marks”**.
+                - **Do not mention** any spelling or grammatical errors.
+
+                ---
+
+    Respond with:
+    1. "NO" if the marks are appropriate.
+    2. "DECREASE" if marks should be reduced based on the feedback.
+    3. "INCREASE" if marks should be increased based on the feedback.
+
+    **Do not respond with any other text or punctuation.**
+    """
+
+    # Call GPT-4o API (you need to set up the OpenAI API key)
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {"role": "system", "content": "You are a critique responsible for checking the accuracy of the marking of elementary school science exam papers by an AI marker. You are to be fair and strict."},  # previous system prompt => You are an assistant that identifies non-positive feedback.
+            {"role": "user", "content": prompt}
+        ],
+        max_tokens=1000,
+        temperature=0
+        )
+
+
+    # Extract GPT-4o's response
+    gpt_response = response.choices[0].message.content
+    return gpt_response.upper().strip()
 
 def update_results(res, grade,packed_ans, rect, marks_max):
     # Use regex to parse out the awarded marks and feedback
@@ -214,6 +261,27 @@ def update_results(res, grade,packed_ans, rect, marks_max):
     #             packed_ans.grading_result = f"{feedback} (Updated Score: {marks_awarded} marks)"
     #     except Exception as e:
     #         print(f"Error analyzing feedback with GPT-4o: {e}")
+
+
+    # New code to call GPT-4o and adjust marks if necessary
+    if marks_awarded > 0:  # Ensure that marks are already awarded before proceeding
+        try:
+            # Analyze feedback using GPT-4o
+            gpt_response = analyze_feedback_with_gpt(feedback, packed_ans)
+
+            # Adjust marks based on GPT's response
+            if gpt_response == "DECREASE":
+                marks_awarded = max(marks_awarded - 0.5, 0)  # Ensure marks don't go below 0
+            elif gpt_response == "INCREASE":
+                marks_awarded = min(marks_awarded + 0.5, packed_ans.marks)  # Ensure marks don't exceed max_marks
+            # If "NO", marks remain unchanged
+
+            # Update the packed answer object
+            packed_ans.gmarks = marks_awarded
+            packed_ans.grading_result = f"{feedback} (Updated Score: {marks_awarded} marks)"
+
+        except Exception as e:
+            print(f"Error analyzing feedback with GPT-4o: {e}")
 
     add_question(packed_ans, rect)
 
